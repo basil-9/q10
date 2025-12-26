@@ -3,236 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مصحف أم القرى | تجربة استماع احترافية</title>
+    <title>مصحف أم القرى - عرض الصفحات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Tajawal:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #d4af37; --bg-light: #fdfdfb; --bg-dark: #121212; }
-        body { font-family: 'Tajawal', sans-serif; transition: 0.3s; background: var(--bg-light); }
-        .quran-text { font-family: 'Scheherazade New', serif; line-height: 2.5; }
-        .ayah-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-right: 4px solid transparent; }
-        .ayah-card.active { background: #fffdf5; border-right-color: var(--primary); transform: scale(1.01); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .dark .ayah-card.active { background: #1e1e1e; border-right-color: var(--primary); }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: var(--primary); }
-        .play-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
+        :root { --primary: #d4af37; --bg-light: #fcfbf7; }
+        body { font-family: 'Tajawal', sans-serif; background: var(--bg-light); transition: 0.3s; }
+        .quran-page { font-family: 'Scheherazade New', serif; line-height: 2.8; text-align: justify; text-align-last: center; }
+        .ayah-span { cursor: pointer; transition: 0.2s; padding: 2px 4px; border-radius: 4px; display: inline; }
+        .ayah-span:hover { background: rgba(212, 175, 55, 0.15); }
+        .ayah-active { background: #fff3cd !important; color: #856404; box-shadow: 0 0 10px rgba(212,175,55,0.3); }
+        .ayah-bookmarked { background: #d1e7dd !important; border-bottom: 2px solid #0f5132; }
+        .dark .ayah-bookmarked { background: #064e3b !important; color: #ecfdf5; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
     </style>
 </head>
-<body class="dark:bg-zinc-950 text-slate-800 dark:text-zinc-200">
+<body class="dark:bg-zinc-950 dark:text-zinc-100">
 
-    <header class="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b dark:border-zinc-800 p-4 shadow-sm">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b dark:border-zinc-800 p-4">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white shadow-lg">🕋</div>
-                <h1 class="text-xl font-bold bg-gradient-to-r from-amber-600 to-yellow-500 bg-clip-text text-transparent uppercase">مصحف أم القرى</h1>
+                <div class="text-2xl">📖</div>
+                <h1 class="text-xl font-bold text-amber-600">مصحف أم القرى</h1>
             </div>
-            
-            <div class="flex items-center gap-2">
-                <select id="reciterSelect" class="bg-slate-100 dark:bg-zinc-800 rounded-lg px-3 py-2 text-sm outline-none border-none focus:ring-2 ring-amber-500"></select>
-                <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800">🌓</button>
+
+            <div class="flex-1 max-w-md relative">
+                <input id="globalSearch" type="text" placeholder="ابحث عن سورة أو آية..." 
+                       class="w-full bg-slate-100 dark:bg-zinc-800 rounded-full px-5 py-2 text-sm outline-none focus:ring-2 ring-amber-500">
+                <div id="searchResults" class="absolute top-12 left-0 w-full bg-white dark:bg-zinc-800 shadow-2xl rounded-2xl max-h-96 overflow-y-auto hidden z-[60] custom-scroll"></div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <select id="reciterSelect" class="bg-slate-100 dark:bg-zinc-800 rounded-lg px-3 py-2 text-xs outline-none"></select>
+                <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 rounded-full bg-slate-100 dark:bg-zinc-800">🌓</button>
             </div>
         </div>
     </header>
 
-    <div class="max-w-6xl mx-auto flex h-[calc(100vh-80px)]">
-        <aside class="w-72 hidden md:flex flex-col border-l dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
-            <div class="p-4 border-b dark:border-zinc-800">
-                <input id="searchSurah" type="text" placeholder="ابحث عن سورة..." class="w-full bg-slate-50 dark:bg-zinc-800 rounded-lg px-4 py-2 text-sm outline-none">
-            </div>
-            <div id="surahList" class="flex-1 overflow-y-auto custom-scroll p-2"></div>
-        </aside>
-
-        <main class="flex-1 overflow-y-auto custom-scroll p-4 md:p-8" id="mainView">
-            <div id="surahHeader" class="text-center mb-10 hidden">
-                <h2 id="currentSurahName" class="text-4xl font-bold text-amber-600 mb-2 quran-text"></h2>
-                <p id="surahMeta" class="text-sm opacity-50"></p>
-                <div class="my-6"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Bismillah.svg" class="h-12 mx-auto dark:invert opacity-70"></div>
+    <main class="max-w-4xl mx-auto p-4 md:p-10">
+        <div id="quran-paper" class="bg-white dark:bg-zinc-900 shadow-2xl rounded-[2rem] p-8 md:p-16 border border-amber-50 dark:border-zinc-800 relative min-h-[80vh]">
+            <div id="pageHeader" class="flex justify-between items-center mb-10 border-b pb-4 opacity-60 text-sm">
+                <span id="surahInfo">سورة الفاتحة</span>
+                <span class="text-amber-600 font-bold">بِسْمِ اللَّـهِ الرَّحْمَـٰنِ الرَّحِيمِ</span>
+                <span id="pageInfo">الجزء ١</span>
             </div>
 
-            <div id="ayahsContainer" class="space-y-4 pb-32">
+            <div id="pageContent" class="quran-page text-3xl md:text-4xl">
                 </div>
-        </main>
-    </div>
-
-    <div id="playerUI" class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-lg bg-white dark:bg-zinc-900 border border-amber-100 dark:border-zinc-800 rounded-3xl shadow-2xl p-4 flex items-center gap-4 z-50 transform translate-y-32 transition-transform duration-500">
-        <button id="togglePlay" class="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-amber-500/30 play-pulse">
-            <svg id="playIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4.5 3.5v13l11-6.5-11-6.5z"/></svg>
-        </button>
-        
-        <div class="flex-1">
-            <div id="trackInfo" class="text-xs font-bold text-amber-600 mb-1">جارٍ التحميل...</div>
-            <div id="tafsirBrief" class="text-[10px] opacity-60 truncate">انقر على الآية للتفسير</div>
-            <div class="h-1 bg-slate-100 dark:bg-zinc-800 rounded-full mt-2 overflow-hidden">
-                <div id="audioProgress" class="h-full bg-amber-500 w-0"></div>
-            </div>
         </div>
 
-        <button id="closePlayer" class="p-2 opacity-30 hover:opacity-100">✕</button>
+        <div id="tafsirCard" class="mt-6 bg-amber-50 dark:bg-zinc-800/50 p-6 rounded-2xl border-r-4 border-amber-500 hidden transition-all">
+            <h4 class="font-bold text-amber-800 dark:text-amber-500 mb-2">التفسير الميسر:</h4>
+            <p id="tafsirText" class="text-lg leading-relaxed"></p>
+        </div>
+    </main>
+
+    <div id="playerBar" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-lg bg-white/95 dark:bg-zinc-900/95 border dark:border-zinc-700 shadow-2xl rounded-3xl p-4 flex items-center gap-4 z-50 transform translate-y-32 transition-all">
+        <button id="mainPlayBtn" class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-white shadow-lg">▶️</button>
+        <div class="flex-1">
+            <div id="currentPlaying" class="text-xs font-bold text-amber-600 truncate">...</div>
+            <div class="h-1 bg-slate-100 dark:bg-zinc-800 rounded-full mt-2"><div id="progress" class="h-full bg-amber-500 w-0"></div></div>
+        </div>
+        <button onclick="this.parentElement.classList.add('translate-y-32')" class="text-xs opacity-30">إغلاق</button>
     </div>
 
-    <audio id="mainAudio"></audio>
+    <audio id="audioElement"></audio>
 
     <script>
-        const API_BASE = "https://api.quran.com/api/v4";
-        const AUDIO_SERVER = "https://www.everyayah.com/data";
-        
+        const API = "https://api.quran.com/api/v4";
         const reciters = [
-            { id: "Abdurrahmane_As-Sudais_192kbps", name: "السديس (الحرم)" },
-            { id: "Bander_Balila_128kbps", name: "بندر بليلة (الحرم)" },
-            { id: "Abdullaah_3awwaad_Al-Juhaynee_128kbps", name: "عبدالله الجهني (الحرم)" },
-            { id: "Maher_AlMuaiqly_64kbps", name: "ماهر المعيقلي (الحرم)" },
-            { id: "Yasser_Ad-Dussary_128kbps", name: "ياسر الدوسري (الحرم)" },
+            { id: "Abdullaah_3awwaad_Al-Juhaynee_128kbps", name: "عبدالله الجهني" },
+            { id: "Maher_AlMuaiqly_64kbps", name: "ماهر المعيقلي" },
+            { id: "Yasser_Ad-Dussary_128kbps", name: "ياسر الدوسري" },
             { id: "Alafasy_128kbps", name: "مشاري العفاسي" }
         ];
 
         let currentAyahs = [];
-        let activeIndex = -1;
-        let currentSurahId = 1;
+        let bookmarkedKey = localStorage.getItem('quran_bookmark_key');
 
-        // Initialize
         window.onload = () => {
-            const select = document.getElementById('reciterSelect');
-            select.innerHTML = reciters.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
-            
-            loadSurahs();
-            checkBookmark();
+            const rSelect = document.getElementById('reciterSelect');
+            rSelect.innerHTML = reciters.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+            loadSurah(1, "سورة الفاتحة");
+            initSearch();
         };
 
-        async function loadSurahs() {
-            const res = await fetch(`${API_BASE}/chapters?language=ar`);
-            const data = await res.json();
-            const list = document.getElementById('surahList');
-            
-            list.innerHTML = data.chapters.map(s => `
-                <div onclick="loadSurah(${s.id}, '${s.name_arabic}')" class="p-3 mb-1 rounded-xl cursor-pointer hover:bg-amber-50 dark:hover:bg-zinc-800 transition group flex justify-between items-center">
-                    <span class="font-bold text-sm">${s.id}. ${s.name_arabic}</span>
-                    <span class="text-[10px] opacity-40">${s.verses_count} آية</span>
-                </div>
-            `).join('');
-        }
-
+        // تحميل السورة بنظام الصفحة
         async function loadSurah(id, name) {
-            currentSurahId = id;
-            document.getElementById('surahHeader').classList.remove('hidden');
-            document.getElementById('currentSurahName').textContent = name;
-            document.getElementById('ayahsContainer').innerHTML = '<div class="text-center py-10 opacity-50">جاري تحميل الآيات...</div>';
-            
-            const res = await fetch(`${API_BASE}/quran/verses/uthmani?chapter_number=${id}`);
+            document.getElementById('surahInfo').textContent = name;
+            const res = await fetch(`${API}/quran/verses/uthmani?chapter_number=${id}`);
             const data = await res.json();
             currentAyahs = data.verses;
-            
-            renderAyahs();
+            renderPage();
         }
 
-        function renderAyahs() {
-            const container = document.getElementById('ayahsContainer');
-            container.innerHTML = currentAyahs.map((v, i) => `
-                <div id="ayah-${i}" class="ayah-card p-6 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm cursor-pointer" onclick="playAyah(${i})">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="w-8 h-8 rounded-full bg-amber-50 dark:bg-zinc-800 flex items-center justify-center text-xs font-bold text-amber-600">${i+1}</span>
-                        <button onclick="saveBookmark(${i}, event)" class="text-xs opacity-40 hover:opacity-100">🔖 حفظ</button>
-                    </div>
-                    <p class="quran-text text-3xl text-right leading-[3.5rem]">${v.text_uthmani}</p>
-                    <div id="tafsir-${i}" class="mt-4 text-sm text-amber-700 dark:text-amber-500 hidden pt-4 border-t border-amber-50 dark:border-zinc-800 italic"></div>
-                </div>
-            `).join('');
+        function renderPage() {
+            const container = document.getElementById('pageContent');
+            container.innerHTML = currentAyahs.map((v, i) => {
+                const isBookmarked = v.verse_key === bookmarkedKey;
+                return `<span id="ayah-${i}" 
+                              class="ayah-span ${isBookmarked ? 'ayah-bookmarked' : ''}" 
+                              onclick="handleAyahClick(${i})">
+                        ${v.text_uthmani} 
+                        <span class="text-amber-600 font-sans text-xl mx-1">﴿${i+1}﴾</span>
+                    </span>`;
+            }).join(' ');
         }
 
-        async function playAyah(index) {
-            if (index >= currentAyahs.length) return;
-            
-            activeIndex = index;
+        async function handleAyahClick(index) {
             const ayah = currentAyahs[index];
-            const [surahNum, ayahNum] = ayah.verse_key.split(':');
+            const [s, a] = ayah.verse_key.split(':');
             
-            // UI Update
-            document.querySelectorAll('.ayah-card').forEach(el => el.classList.remove('active'));
-            const card = document.getElementById(`ayah-${index}`);
-            card.classList.add('active');
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Audio Path Construction
+            // 1. Highlight
+            document.querySelectorAll('.ayah-span').forEach(el => el.classList.remove('ayah-active'));
+            document.getElementById(`ayah-${index}`).classList.add('ayah-active');
+
+            // 2. Audio
             const reciter = document.getElementById('reciterSelect').value;
-            const s = surahNum.padStart(3, '0');
-            const a = ayahNum.padStart(3, '0');
-            const audioUrl = `${AUDIO_SERVER}/${reciter}/${s}${a}.mp3`;
-            
-            const audio = document.getElementById('mainAudio');
+            const audioUrl = `https://www.everyayah.com/data/${reciter}/${s.padStart(3,'0')}${a.padStart(3,'0')}.mp3`;
+            const audio = document.getElementById('audioElement');
             audio.src = audioUrl;
             audio.play();
 
-            // Player UI
-            document.getElementById('playerUI').classList.remove('translate-y-32');
-            document.getElementById('trackInfo').textContent = `سورة الفاتحة - آية ${ayahNum}`;
-            document.getElementById('playIcon').innerHTML = '<path d="M6 4h4v12H6V4zm4 0h4v12h-4V4z"/>';
+            // 3. UI
+            document.getElementById('playerBar').classList.remove('translate-y-32');
+            document.getElementById('currentPlaying').textContent = `جاري تشغيل آية رقم ${a}`;
+            document.getElementById('mainPlayBtn').textContent = '⏸️';
 
-            // Fetch Tafsir
-            loadTafsir(ayah.verse_key, index);
+            // 4. Tafsir
+            loadTafsir(ayah.verse_key);
+
+            // 5. Bookmark Option (Automatic on click)
+            saveBookmark(ayah.verse_key);
 
             // Auto-next
-            audio.onended = () => playAyah(index + 1);
-        }
-
-        async function loadTafsir(key, index) {
-            const el = document.getElementById(`tafsir-${index}`);
-            el.classList.remove('hidden');
-            el.textContent = "جاري تحميل التفسير...";
-            
-            const res = await fetch(`${API_BASE}/tafsirs/16/by_ayah/${key}`);
-            const data = await res.json();
-            el.textContent = data.tafsir.text;
-            document.getElementById('tafsirBrief').textContent = data.tafsir.text;
-        }
-
-        // Bookmark Logic
-        function saveBookmark(index, event) {
-            event.stopPropagation();
-            const data = {
-                surahId: currentSurahId,
-                surahName: document.getElementById('currentSurahName').textContent,
-                ayahIndex: index
+            audio.onended = () => {
+                if(index + 1 < currentAyahs.length) handleAyahClick(index + 1);
             };
-            localStorage.setItem('quran_bookmark', JSON.stringify(data));
-            alert('تم حفظ موضع القراءة بنجاح');
         }
 
-        function checkBookmark() {
-            const saved = localStorage.getItem('quran_bookmark');
-            if (saved) {
-                const data = JSON.parse(saved);
-                if (confirm(`هل تريد العودة إلى ${data.surahName} آية ${data.ayahIndex + 1}؟`)) {
-                    loadSurah(data.surahId, data.surahName).then(() => {
-                        setTimeout(() => playAyah(data.ayahIndex), 1000);
+        async function loadTafsir(key) {
+            const card = document.getElementById('tafsirCard');
+            const text = document.getElementById('tafsirText');
+            card.classList.remove('hidden');
+            text.textContent = "جاري التحميل...";
+            const res = await fetch(`${API}/tafsirs/16/by_ayah/${key}`);
+            const data = await res.json();
+            text.textContent = data.tafsir.text;
+        }
+
+        function saveBookmark(key) {
+            bookmarkedKey = key;
+            localStorage.setItem('quran_bookmark_key', key);
+            // تحديث الألوان فوراً دون إعادة تحميل
+            document.querySelectorAll('.ayah-span').forEach(el => el.classList.remove('ayah-bookmarked'));
+            const activeAyah = currentAyahs.findIndex(v => v.verse_key === key);
+            if(activeAyah !== -1) document.getElementById(`ayah-${activeAyah}`).classList.add('ayah-bookmarked');
+        }
+
+        // محرك البحث المزدوج
+        function initSearch() {
+            const input = document.getElementById('globalSearch');
+            const results = document.getElementById('searchResults');
+
+            input.addEventListener('input', async (e) => {
+                const query = e.target.value.trim();
+                if (query.length < 2) { results.classList.add('hidden'); return; }
+
+                // البحث في السور (محلي) والآيات (API)
+                const res = await fetch(`${API}/search?q=${encodeURIComponent(query)}&language=ar`);
+                const data = await res.json();
+
+                results.innerHTML = '';
+                results.classList.remove('hidden');
+
+                if (data.results.length > 0) {
+                    data.results.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = "p-4 hover:bg-amber-50 dark:hover:bg-zinc-700 cursor-pointer border-b dark:border-zinc-700";
+                        div.innerHTML = `<div class="text-xs text-amber-600">${item.verse_key}</div>
+                                         <div class="text-sm font-bold">${item.text.replace(/<(?:.|\n)*?>/gm, '')}</div>`;
+                        div.onclick = () => {
+                            const [sId] = item.verse_key.split(':');
+                            loadSurah(sId, "نتائج البحث").then(() => {
+                                const index = currentAyahs.findIndex(v => v.verse_key === item.verse_key);
+                                if(index !== -1) handleAyahClick(index);
+                            });
+                            results.classList.add('hidden');
+                        };
+                        results.appendChild(div);
                     });
+                } else {
+                    results.innerHTML = '<div class="p-4 text-center opacity-50">لا توجد نتائج</div>';
                 }
-            }
+            });
         }
 
-        // Audio Controls
-        document.getElementById('togglePlay').onclick = () => {
-            const audio = document.getElementById('mainAudio');
-            if (audio.paused) {
-                audio.play();
-                document.getElementById('playIcon').innerHTML = '<path d="M6 4h4v12H6V4zm4 0h4v12h-4V4z"/>';
-            } else {
-                audio.pause();
-                document.getElementById('playIcon').innerHTML = '<path d="M4.5 3.5v13l11-6.5-11-6.5z"/>';
-            }
+        // التحكم بالصوت
+        document.getElementById('mainPlayBtn').onclick = () => {
+            const audio = document.getElementById('audioElement');
+            if(audio.paused) { audio.play(); document.getElementById('mainPlayBtn').textContent = '⏸️'; }
+            else { audio.pause(); document.getElementById('mainPlayBtn').textContent = '▶️'; }
         };
 
-        const audio = document.getElementById('mainAudio');
+        const audio = document.getElementById('audioElement');
         audio.ontimeupdate = () => {
-            const prog = (audio.currentTime / audio.duration) * 100;
-            document.getElementById('audioProgress').style.width = prog + '%';
-        };
-
-        document.getElementById('closePlayer').onclick = () => {
-            document.getElementById('playerUI').classList.add('translate-y-32');
-            audio.pause();
+            const p = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progress').style.width = p + '%';
         };
     </script>
 </body>
