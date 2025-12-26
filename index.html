@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -6,11 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>مصحف أم القرى - تجربة تطبيق آية</title>
 
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS -->
+  https://cdn.tailwindcss.com</script>
 
-  <!-- خطوط عربية مناسبة للمصحف -->
-  <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+  <!-- خطوط عربية -->
+  https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New:wght@400;700&display=swap
 
   <style>
     body { font-family: 'Amiri', serif; background-color: #fcfbf7; }
@@ -33,9 +34,7 @@
 
     <div class="flex items-center gap-3">
       <label for="reciter" class="text-sm text-slate-500">القارئ:</label>
-      <select id="reciter" class="border rounded-lg px-3 py-2 text-sm focus:ring-amber-500 focus:border-amber-500">
-        <!-- يتم ملؤه برمجيًا -->
-      </select>
+      <select id="reciter" class="border rounded-lg px-3 py-2 text-sm focus:ring-amber-500 focus:border-amber-500"></select>
     </div>
 
     <div id="surah-title" class="text-lg font-bold text-amber-700">سورة الفاتحة</div>
@@ -43,17 +42,13 @@
 
   <!-- التخطيط -->
   <div class="flex">
-    <!-- الشريط الجانبي -->
     <aside class="w-72 h-[calc(100vh-73px)] overflow-y-auto border-l bg-white custom-scrollbar hidden md:block">
       <div class="p-3 border-b">
-        <input id="chapters-search" type="search"
-               placeholder="ابحث عن سورة..."
-               class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-amber-500 focus:border-amber-500">
+        <input id="chapters-search" type="search" placeholder="ابحث عن سورة..." class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-amber-500 focus:border-amber-500">
       </div>
       <div id="chapters-list" class="divide-y"></div>
     </aside>
 
-    <!-- المحتوى الرئيسي -->
     <main class="flex-1 h-[calc(100vh-73px)] overflow-y-auto p-4 sm:p-6 md:p-10 custom-scrollbar">
       <div id="quran-container" class="max-w-3xl mx-auto space-y-8 text-right bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-amber-50">
         <p class="text-center text-slate-400">جاري تهيئة المصحف...</p>
@@ -63,39 +58,117 @@
 
   <!-- شريط الصوت -->
   <div class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[94%] md:w-2/3 lg:w-1/2 bg-white border border-amber-100 shadow-2xl rounded-full px-4 py-2 flex items-center gap-3 z-50">
-    <button id="prev-ayah" title="السابق"
-            class="p-2 rounded-full hover:bg-amber-50 text-amber-700 disabled:opacity-40 disabled:hover:bg-transparent">
-      ⏮️
-    </button>
-
-    <button id="play-toggle" title="تشغيل/إيقاف"
-            class="p-2 rounded-full hover:bg-amber-50 text-amber-700">
-      ▶️
-    </button>
-
-    <button id="next-ayah" title="التالي"
-            class="p-2 rounded-full hover:bg-amber-50 text-amber-700 disabled:opacity-40 disabled:hover:bg-transparent">
-      ⏭️
-    </button>
-
+    <button id="prev-ayah" title="السابق" class="p-2 rounded-full hover:bg-amber-50 text-amber-700 disabled:opacity-40">⏮️</button>
+    <button id="play-toggle" title="تشغيل/إيقاف" class="p-2 rounded-full hover:bg-amber-50 text-amber-700">▶️</button>
+    <button id="next-ayah" title="التالي" class="p-2 rounded-full hover:bg-amber-50 text-amber-700 disabled:opacity-40">⏭️</button>
     <div class="flex-1 min-w-0">
-      <div id="now-playing" class="truncate text-sm text-slate-600">
-        لا يوجد تشغيل حاليًا
-      </div>
+      <div id="now-playing" class="truncate text-sm text-slate-600">لا يوجد تشغيل حاليًا</div>
       <input id="seek" type="range" min="0" max="100" value="0" class="w-full accent-amber-600"/>
     </div>
-
     <div class="w-28 text-right text-xs text-slate-500">
       <span id="current-time">0:00</span> / <span id="duration">0:00</span>
     </div>
-
     <audio id="main-audio" class="hidden"></audio>
   </div>
 
-  <!-- سكربت التطبيق -->
+  <!-- سكربت -->
   <script>
-    // نفس السكربت المحسّن الذي أرسلته لك سابقًا بدون تغيير
-    // انسخه بالكامل من النسخة السابقة لأنه طويل جدًا
+    const quranContainer = document.getElementById('quran-container');
+    const chaptersList = document.getElementById('chapters-list');
+    const mainAudio = document.getElementById('main-audio');
+    const surahTitleEl = document.getElementById('surah-title');
+    const reciterSelect = document.getElementById('reciter');
+    const nowPlaying = document.getElementById('now-playing');
+    const playToggleBtn = document.getElementById('play-toggle');
+    const prevBtn = document.getElementById('prev-ayah');
+    const nextBtn = document.getElementById('next-ayah');
+    const seek = document.getElementById('seek');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationEl = document.getElementById('duration');
+
+    let verses = [];
+    let currentIndex = -1;
+    let playing = false;
+    let currentSurahId = 1;
+    let currentSurahName = 'سورة الفاتحة';
+    let reciters = [
+      { id: 7, name: 'مشاري راشد العفاسي' },
+      { id: 3, name: 'محمود خليل الحصري' },
+      { id: 8, name: 'سعود الشريم' },
+      { id: 2, name: 'عبدالباسط عبدالصمد (مجود)' },
+      { id: 9, name: 'محمد صديق المنشاوي' }
+    ];
+
+    function populateReciters() {
+      reciterSelect.innerHTML = '';
+      reciters.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id;
+        opt.textContent = r.name;
+        reciterSelect.appendChild(opt);
+      });
+      reciterSelect.value = '7';
+    }
+
+    async function loadChapters() {
+      const res = await fetch('https://api.quran.com/api/v4/chapters?language=ar');
+      const data = await res.json();
+      data.chapters.forEach(surah => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-right p-4 hover:bg-amber-50 transition flex justify-between items-center";
+        btn.innerHTML = `<span>${surah.id}. ${surah.name_arabic}</span> <span class="text-xs text-slate-400">${surah.verses_count} آية</span>`;
+        btn.onclick = () => loadSurah(surah.id, surah.name_arabic);
+        chaptersList.appendChild(btn);
+      });
+    }
+
+    async function loadSurah(id, name) {
+      surahTitleEl.textContent = name;
+      currentSurahId = id;
+      currentSurahName = name;
+      quranContainer.innerHTML = '<p class="text-center text-slate-400">جاري جلب الآيات...</p>';
+      const res = await fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${id}`);
+      const data = await res.json();
+      verses = data.verses;
+      quranContainer.innerHTML = '';
+      verses.forEach((v, idx) => {
+        const p = document.createElement('p');
+        p.className = "quran-font text-3xl leading-[4rem] cursor-pointer hover:text-amber-700 transition";
+        p.innerHTML = `${v.text_uthmani} <span class="text-lg text-amber-600 opacity-60 inline-block border rounded-full px-2">(${v.verse_key.split(':')[1]})</span>`;
+        p.onclick = () => playAyah(idx);
+        quranContainer.appendChild(p);
+      });
+    }
+
+    async function playAyah(index) {
+      currentIndex = index;
+      const vk = verses[index].verse_key;
+      const reciterId = reciterSelect.value;
+      const res = await fetch(`https://api.quran.com/api/v4/recitations/${reciterId}/by_ayah/${vk}`);
+      const data = await res.json();
+      mainAudio.src = "https://verses.quran.com/" + data.audio_files[0].url;
+      mainAudio.play();
+      playing = true;
+      playToggleBtn.textContent = '⏸️';
+      nowPlaying.textContent = `${currentSurahName} - آية (${vk.split(':')[1]})`;
+    }
+
+    playToggleBtn.onclick = () => {
+      if (playing) {
+        mainAudio.pause();
+        playing = false;
+        playToggleBtn.textContent = '▶️';
+      } else {
+        mainAudio.play();
+        playing = true;
+        playToggleBtn.textContent = '⏸️';
+      }
+    };
+
+    populateReciters();
+    loadChapters();
+    loadSurah(1, 'سورة الفاتحة');
   </script>
 </body>
 </html>
+
