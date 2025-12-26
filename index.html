@@ -3,132 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <title>مصحف أم القرى</title>
-
 <style>
-body{
-  font-family: Amiri, serif;
-  background:#f7f7f7;
-  margin:0;
-}
-header{
-  background:#1b5e20;
-  color:white;
-  text-align:center;
-  padding:20px;
-}
-nav button{
-  margin:5px;
-  padding:10px 15px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
-section{display:none;padding:20px}
-section.active{display:block}
-.ayah{
-  background:white;
-  padding:15px;
-  margin:10px 0;
-  border-radius:8px;
-}
+body{font-family:Amiri,serif;background:#f4f6f4}
+header{background:#1b5e20;color:#fff;padding:20px;text-align:center}
+.ayah{background:#fff;margin:10px;padding:15px;border-radius:10px}
 </style>
 </head>
-
 <body>
 
 <header>
   <h1>مصحف أم القرى</h1>
-  <nav>
-    <button onclick="show('quran')">📖 القرآن</button>
-    <button onclick="show('readers')">🎙️ القرّاء</button>
-    <button onclick="show('tafsir')">📚 التفسير</button>
-    <button onclick="show('search')">🔍 البحث</button>
-  </nav>
 </header>
 
-<!-- القرآن -->
-<section id="quran" class="active"></section>
-
-<!-- القرّاء -->
-<section id="readers">
-  <h2>🎙️ القرّاء</h2>
-  <select>
-    <option>عبد الرحمن السديس</option>
-    <option>الوليد الشمسان</option>
-    <option>بندر بليلة</option>
-    <option>بدر التركي</option>
-    <option>أحمد بن طالب</option>
-    <option>ماهر المعيقلي</option>
-    <option>سعود الشريم</option>
-    <option>علي الحذيفي</option>
-  </select>
-  <p>🔊 (توضع روابط الصوت هنا)</p>
-</section>
-
-<!-- التفسير -->
-<section id="tafsir">
-  <h2>📚 تفسير</h2>
-  <p>
-    الحمد لله رب العالمين:  
-    الثناء الكامل لله وحده، المتفرد بالخلق والتدبير.
-  </p>
-</section>
-
-<!-- البحث -->
-<section id="search">
-  <input id="q" placeholder="ابحث عن آية" style="width:100%;padding:10px">
-  <div id="results"></div>
-</section>
+<div id="quran"></div>
 
 <script>
-// بيانات قرآن تجريبية (قابلة للتوسعة)
-const quran = [
- {id:1,text:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"},
- {id:2,text:"الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ"},
- {id:3,text:"الرَّحْمَٰنِ الرَّحِيمِ"},
- {id:4,text:"مَالِكِ يَوْمِ الدِّينِ"}
-];
-
-// عرض القرآن
-const quranDiv = document.getElementById("quran");
-quran.forEach(a=>{
-  let d=document.createElement("div");
-  d.className="ayah";
-  d.innerHTML=`
-    <p>${a.text}</p>
-    <button onclick="save(${a.id})">⭐ حفظ</button>
-  `;
-  quranDiv.appendChild(d);
+fetch("quran.json")
+.then(res=>res.json())
+.then(quran=>{
+  const div=document.getElementById("quran");
+  quran.forEach(a=>{
+    div.innerHTML+=`
+      <div class="ayah">
+        <strong>${a.surah_name} (${a.ayah})</strong><br>
+        ${a.text}
+      </div>
+    `;
+  });
 });
-
-// حفظ آخر موضع
-function save(id){
-  localStorage.setItem("lastAyah",id);
-  alert("تم حفظ الآية");
-}
-
-// البحث
-document.getElementById("q").oninput=e=>{
-  let v=e.target.value;
-  document.getElementById("results").innerHTML=
-    quran.filter(a=>a.text.includes(v))
-         .map(a=>`<p>${a.text}</p>`).join("");
-};
-
-// التنقل
-function show(id){
-  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
-// الرجوع لآخر موضع
-let last=localStorage.getItem("lastAyah");
-if(last){
-  alert("آخر موضع محفوظ: آية رقم "+last);
-}
 </script>
 
 </body>
 </html>
+
 
            
