@@ -1,40 +1,122 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <title>مصحف أم القرى</title>
 <style>
-body{font-family:Amiri,serif;background:#f4f6f4}
-header{background:#1b5e20;color:#fff;padding:20px;text-align:center}
-.ayah{background:#fff;margin:10px;padding:15px;border-radius:10px}
+  body{font-family:Amiri,serif;background:#f4f6f4;margin:0}
+  header{background:#1b5e20;color:#fff;padding:15px;text-align:center}
+  .ayah{background:#fff;margin:10px;padding:15px;border-radius:10px}
+  button,select,input{margin-top:8px}
+  footer{color:#4b5563;text-align:center;font-size:.85rem;padding:12px}
 </style>
 </head>
-<body>
 
+<body>
 <header>
   <h1>مصحف أم القرى</h1>
+  <select id="reader">
+    <option value="sds">عبد الرحمن السديس</option>
+    <option value="blila">بندر بليلة</option>
+    <option value="turki">بدر التركي</option>
+  </select>
 </header>
+
+<input id="search" placeholder="ابحث عن آية أو اكتب 2:255" style="width:100%;padding:10px">
 
 <div id="quran"></div>
 
-<script>
-fetch("quran.json")
-.then(res=>res.json())
-.then(quran=>{
-  const div=document.getElementById("quran");
-  quran.forEach(a=>{
-    div.innerHTML+=`
-      <div class="ayah">
-        <strong>${a.surah_name} (${a.ayah})</strong><br>
-        ${a.text}
-      </div>
-    `;
-  });
-});
-</script>
+<footer>
+  النص بالرسم العثماني من مصادر موثوقة منشورة عبر CDN،
+  ويُلزم عند استخدام نص **Tanzil** إسناد المصدر والرابط: <a href="https://tanzil.net/download/" target="_blank" rel="noopener">tanzil.net</a>.
+</footer>
 
+<script>
+let reader = "sds";
+document.getElementById("reader").onchange = e => { reader = e.target.value; };
+
+const elQuran = document.getElementById("quran");
+const elSearch = document.getElementById("search");
+
+// سنحاول أولاً جلب JSON من CDN، وإن فشل نستخدم الملف المحلي quran-uthmani.json
+const CDN_URL = "https://cdn.jsdelivr.net/npm/quran-json@3.1.2/dist/quran.json"; // [2](https://github.com/risan/quran-json)[3](https://www.npmjs.com/package/quran-json/v/3.1.2)
+const LOCAL_URL = "quran-uthmani.json"; // لو عندك ملف محلي بنفس الحقول
+
+// دالة تحويل من بنية quran-json إلى البنية المطلوبة في كودك
+function normalizeQuranJson(data) {
+  const list = [];
+  // الحزمة تُعيد عادةً: { chapters: [ { chapterNumber, chapterNameArabic, verses: [{ verseNumber, text }...] } ... ] }
+  if (data && Array.isArray(data.chapters)) {
+    data.chapters.forEach(ch => {
+      const suraId   = ch.chapterNumber || ch.chapterId || ch.id;
+      const suraName = ch.chapterNameArabic || ch.nameArabic || ch.name || "";
+      (ch.verses || []).forEach(v => {
+        const ayahNum = v.verseNumber || v.ayahNumber || v.id;
+        const text    = v.text || v.textUthmani || v.uthmani || "";
+        list.push({ sura: suraId, sura_name: suraName, aya: ayahNum, text });
+      });
+    });
+  } else if (Array.isArray(data)) {
+    // في حال كان ملفك المحلي عبارة عن مصفوفة آيات جاهزة
+    return data;
+  }
+  return list;
+}
+
+// تحميل البيانات
+(async function loadQuran(){
+  try {
+    const res = await fetch(CDN_URL, { cache: "force-cache" });
+    if (!res.ok) throw new Error("CDN failed");
+    const json = await res.json();
+    window.quran = normalizeQuranJson(json);
+    render(window.quran);
+  } catch(err) {
+    console.warn("CDN لم ينجح، نجرّب الملف المحلي:", err);
+    try {
+      const res2 = await fetch(LOCAL_URL);
+      const data2 = await res2.json();
+      window.quran = normalizeQuranJson(data2);
+      render(window.quran);
+    } catch(e2) {
+      elQuran.innerHTML = '<div class="ayah">تعذر تحميل نص القرآن. تأكد من اتصال الإنترنت أو وجود الملف المحلي quran-uthmani.json.</div>';
+    }
+  }
+})();
+
+// عرض الآيات
+function render(list){
+  elQuran.innerHTML = "";
+  list.forEach(a => {
+    const audioUrl =
+      `https://server8.mp3quran.net/${reader}/${String(a.sura).padStart(3,'0')}${String(a.aya).padStart(3,'0')}.mp3`;
+    elQuran.innerHTML += `
+      <div class="ayah">
+        <strong>${a.sura_name} ${a.aya}</strong><br>
+        ${a.text}<br>
+        <audio controls src="${audioUrl}"></audio>
+      </div>`;
+  });
+}
+
+// البحث: نص الآية، أو مفتاح آية بصيغة 2:255
+elSearch.oninput = e => {
+  const v = (e.target.value || "").trim();
+  if (!v) return render(window.quran);
+
+  // إذا كتب المستخدم مفتاح آية 2:255
+  if (/^\d{1,3}:\d{1,3}$/.test(v)) {
+    const [s, a] = v.split(":").map(n => parseInt(n, 10));
+    const found = window.quran.filter(it => it.sura === s && it.aya === a);
+    return render(found.length ? found : []);
+  }
+
+  // بحث نصّي داخل الآية
+  const filtered = window.quran.filter(a => (a.text || "").includes(v));
+  render(filtered);
+};
+</script>
 </body>
 </html>
 
-
-           
