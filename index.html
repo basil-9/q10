@@ -4,28 +4,28 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>مصحف أم القرى</title>
+<title>مصحف أم القرى — النسخة الذهبية</title>
 
 <!-- Manifest سيُحقن عبر Blob لاحقًا -->
 <link rel="manifest" id="manifest-link"/>
 
-<!-- خطوط عربية (روابط صحيحة) -->
-<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet"/>
+<!-- خطوط عربية -->
+<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --bg:#0f1216;         /* خلفية داكنة */
-    --panel:#171b22;      /* ألواح */
-    --text:#e7eaee;       /* نص */
-    --muted:#9aa4b2;      /* نص خافت */
-    --line:#2c3440;       /* حدود */
-    --orn:#cbd5e1;        /* زخرفة */
+    --bg:#0b0f14;         /* خلفية داكنة فاخرة */
+    --panel:#11151b;      /* ألواح داكنة */
+    --text:#f4f5f7;       /* نص فاتح */
+    --muted:#98a2b3;      /* نص خافت */
+    --line:#262d36;       /* حدود باهتة */
+    --orn:#7b8b9e;        /* زخرفة فضية خفيفة */
+    --gold:#d4af37;       /* ذهبي أساسي */
+    --gold-2:#b3932f;     /* ذهبي داكن */
     --green:#34d399;      /* تمييز */
-    --gold:#d4af37;       /* ذهبي */
-    --accent:#22c55e;     /* لهجة */
   }
   .light{
-    --bg:#f6f7f9; --panel:#ffffff; --text:#0f172a; --muted:#6b7280; --line:#e5e7eb; --orn:#9ca3af;
+    --bg:#f7f7f5; --panel:#ffffff; --text:#0f172a; --muted:#6b7280; --line:#e5e7eb; --orn:#c1c7cf; --gold:#b9891b; --gold-2:#8a6a15;
   }
 
   html,body{height:100%}
@@ -33,39 +33,51 @@
   .quran-font{font-family:'Scheherazade New',serif}
   .container{max-width:1040px;margin:0 auto;padding:16px}
 
-  /* الهيدر */
+  /* شريط علوي ذهبي */
   .appbar{
     position:sticky;top:0;z-index:50;
     display:flex;align-items:center;gap:12px;justify-content:space-between;
-    background:color-mix(in oklch,var(--bg) 85%,#000 15%); backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line); padding:10px 16px;
+    background:linear-gradient(180deg, rgba(212,175,55,0.12), rgba(0,0,0,0.12));
+    border-bottom:1px solid var(--line); padding:10px 16px; backdrop-filter:blur(8px);
   }
-  .brand{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--gold)}
-  .brand .mark{width:10px;height:16px;background:var(--gold);border-radius:6px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--gold);letter-spacing:.3px}
+  .mark{
+    width:12px;height:18px;border-radius:8px;
+    background:radial-gradient(circle at 30% 30%, #fff4, transparent 60%), linear-gradient(180deg,var(--gold),var(--gold-2));
+    box-shadow:0 0 8px rgba(212,175,55,.35);
+  }
 
   /* أدوات أعلى (بحث + تبديل الوضع + تثبيت + مشاركة) */
   .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .toolbar input[type="search"], .toolbar select, .toolbar button{
     background:color-mix(in oklch,var(--bg) 85%, #000 15%); color:var(--text);
-    border:1px solid var(--line); border-radius:999px; padding:10px 14px; font-size:.95rem; outline:none;
+    border:1px solid var(--line); border-radius:999px; padding:10px 14px; font-size:.95rem; outline:none
   }
-  .toolbar button{cursor:pointer} .toolbar button:hover{border-color:color-mix(in oklch,var(--orn) 90%, var(--accent) 10%)}
+  .toolbar button{cursor:pointer}
+  .toolbar button:hover{border-color:color-mix(in oklch,var(--gold) 60%, var(--orn) 40%)}
 
   /* معلومات السورة/الجزء */
-  .topmeta{display:flex;justify-content:space-between;align-items:center;color:color-mix(in oklch,var(--muted) 80%, var(--text) 20%);
-           padding:10px 16px}
+  .topmeta{display:flex;justify-content:space-between;align-items:center;color:color-mix(in oklch,var(--muted) 80%, var(--text) 20%);padding:8px 16px}
 
-  /* إطار زخرفي لاسم السورة */
+  /* إطار زخرفي ذهبي لاسم السورة */
   .surah-banner{
-    position:relative;margin:18px auto 12px;max-width:920px;
-    border:1.6px solid var(--orn);border-radius:16px;padding:14px 20px;
-    background:linear-gradient(180deg, color-mix(in oklch,var(--bg) 70%, #000 30%) 0%, color-mix(in oklch,var(--bg) 85%, #000 15%) 100%);
-    text-align:center;color:var(--text);font-weight:bold;letter-spacing:.4px
+    position:relative;margin:18px auto 12px;max-width:920px;border-radius:16px;padding:16px 22px;text-align:center;color:var(--text);
+    background:linear-gradient(180deg, rgba(212,175,55,0.10) 0%, rgba(212,175,55,0.04) 100%);
+    border:1.4px solid var(--gold-2);
+    box-shadow:inset 0 0 0 2px rgba(212,175,55,.15), 0 0 25px rgba(212,175,55,.08);
   }
-  .surah-banner:before,.surah-banner:after{content:'';position:absolute;height:1px;left:18px;right:18px;background:var(--orn);opacity:.35}
-  .surah-banner:before{top:8px} .surah-banner:after{bottom:8px}
-  .surah-banner .decor{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-  .surah-banner .decor span{display:inline-block;width:84px;height:10px;border:1px solid var(--orn);border-radius:12px;opacity:.35}
+  .surah-banner .title{font-weight:800;letter-spacing:.4px}
+  .surah-banner .decor{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+  .surah-banner .decor span{
+    display:inline-block;width:100px;height:12px;border:1px solid var(--gold-2);border-radius:12px;opacity:.45;
+    background:linear-gradient(90deg, rgba(212,175,55,.15), rgba(212,175,55,.05));
+  }
+
+  /* بسم الله */
+  .basmala{
+    margin:12px auto 6px;max-width:820px;text-align:center;color:var(--gold);font-weight:700;
+    text-shadow:0 0 10px rgba(212,175,55,.12);
+  }
 
   /* أدوات رئيسية */
   .tools{display:flex;gap:10px;align-items:center;margin:12px 0;flex-wrap:wrap}
@@ -75,37 +87,51 @@
   }
 
   /* صفحة المصحف */
-  .page{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px 22px;}
+  .page{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px 24px;}
   .skeleton{display:flex;flex-direction:column;gap:12px}
   .skeleton div{height:24px;border-radius:8px;background:linear-gradient(90deg, color-mix(in oklch,var(--panel) 70%,#000 30%) 0%, color-mix(in oklch,var(--panel) 50%,#000 50%) 50%, color-mix(in oklch,var(--panel) 70%,#000 30%) 100%); background-size:200% 100%; animation:shimmer 1.4s infinite;}
   @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-  .ayah{margin:12px 0;padding:8px;border-radius:12px;border:1px solid transparent}
-  .ayah:hover{background:color-mix(in oklch,var(--panel) 80%, #000 20%)}
-  .ayah.bookmarked{background:rgba(52,211,153,.12);border-color:var(--green)}
-  .num{display:inline-block;border:1px solid var(--orn);color:var(--orn);border-radius:999px;padding:2px 8px;font-size:.9rem;margin:0 8px;opacity:.85}
-  .text{font-size:2.1rem;line-height:3.1rem;color:var(--text)}
+  .ayah{margin:14px 0;padding:8px;border-radius:14px;border:1px solid transparent}
+  .ayah:hover{background:#151a20}
+  .ayah.bookmarked{background:rgba(212,175,55,.12);border-color:var(--gold-2)}
+  .num{
+    display:inline-block; margin:0 10px; padding:2px 10px; font-size:.95rem; color:#101417;
+    border-radius:999px; border:1px solid var(--gold-2);
+    background:radial-gradient(circle at 30% 30%, #fff7, transparent 60%), linear-gradient(180deg,var(--gold),var(--gold-2));
+    box-shadow:0 0 12px rgba(212,175,55,.25);
+  }
+  .text{font-size:2.25rem; line-height:3.35rem; color:var(--text)}
 
   .actions{display:flex;gap:8px;align-items:center;margin-top:8px}
-  .btn{background:color-mix(in oklch,var(--bg) 85%, #000 15%);color:var(--text);border:1px solid var(--line);
-       border-radius:999px;padding:8px 14px;cursor:pointer}
-  .btn:hover{border-color:color-mix(in oklch,var(--orn) 90%, var(--accent) 10%)} .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn{background:color-mix(in oklch,var(--bg) 85%, #000 15%);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer}
+  .btn:hover{border-color:color-mix(in oklch,var(--gold) 60%, var(--orn) 40%)} .btn:disabled{opacity:.5;cursor:not-allowed}
 
   .nav{display:flex;gap:8px;justify-content:flex-end;margin:10px 0}
 
-  /* بادج الصفحة */
-  .page-badge{position:fixed;bottom:16px;left:16px;color:var(--text);border:1px solid var(--orn);border-radius:18px;padding:6px 16px;background:color-mix(in oklch,var(--bg) 85%, #000 15%);opacity:.95}
+  /* بادج رقم الصفحة */
+  .page-badge{
+    position:fixed;bottom:16px;left:16px;color:#101417;border:1px solid var(--gold-2);border-radius:18px;padding:6px 16px;
+    background:linear-gradient(180deg,var(--gold),var(--gold-2));opacity:.95; box-shadow:0 0 10px rgba(212,175,55,.35)
+  }
 
   /* مشغل الصوت */
-  .audio-bar{position:fixed;bottom:16px;right:16px;left:150px;display:flex;gap:10px;align-items:center;background:color-mix(in oklch,var(--bg) 85%, #000 15%);border:1px solid var(--line);border-radius:999px;padding:8px 12px}
+  .audio-bar{
+    position:fixed;bottom:16px;right:16px;left:160px;display:flex;gap:10px;align-items:center;
+    background:linear-gradient(180deg, rgba(212,175,55,0.10), rgba(212,175,55,0.04));
+    border:1px solid var(--gold-2);border-radius:999px;padding:8px 12px; box-shadow:0 0 12px rgba(212,175,55,.20)
+  }
   .audio-bar .title{flex:1;min-width:0;color:var(--text);font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .audio-bar .row{display:flex;gap:8px;align-items:center}
 
   /* نافذة التفسير */
   .modal{display:none;position:fixed;inset:0;background:#0008;z-index:50;align-items:center;justify-content:center}
   .modal.open{display:flex}
-  .modal .card{background:color-mix(in oklch,var(--bg) 85%, #000 15%);border:1px solid var(--line);border-radius:14px;padding:16px;max-width:780px;width:92%;color:var(--text)}
-  .modal .card h3{margin-top:0;margin-bottom:10px}
+  .modal .card{
+    background:linear-gradient(180deg, rgba(212,175,55,0.10), rgba(212,175,55,0.04));
+    border:1px solid var(--gold-2);border-radius:14px;padding:16px;max-width:820px;width:92%;color:var(--text);box-shadow:0 0 22px rgba(212,175,55,.18)
+  }
+  .modal .card h3{margin-top:0;margin-bottom:10px;color:var(--gold)}
   .meta{color:var(--muted);margin-bottom:10px;font-size:.9rem}
 
   /* Toast */
@@ -119,11 +145,11 @@
 <body>
   <!-- AppBar -->
   <header class="appbar" role="banner" aria-label="شريط علوي">
-    <div class="brand" title="مصحف أم القرى"><span class="mark"></span> مصحف أم القرى</div>
+    <div class="brand" title="مصحف أم القرى"><span class="mark"></span> مصحف أم القرى (الذهبي)</div>
     <div class="toolbar">
       <input id="search" type="search" aria-label="بحث نص أو آية" placeholder="ابحث نصًا أو اكتب مفتاح آية مثل 2:255" style="min-width:280px"/>
       <button id="share" title="مشاركة الرابط">مشاركة</button>
-      <button id="theme" title="تبديل الوضع">نهاري/ليلي</button>
+      <button id="theme" title="تبديل نهاري/ليلي">نهاري/ليلي</button>
       <button id="install" title="تثبيت التطبيق">تثبيت</button>
     </div>
   </header>
@@ -135,24 +161,21 @@
   </div>
 
   <div class="container" role="main">
-    <!-- إطار زخرفي لاسم السورة -->
+    <!-- إطار زخرفي ذهبي لاسم السورة -->
     <div class="surah-banner" aria-label="عنوان السورة">
-      <div>سورة <span id="surah-title" class="quran-font" style="font-size:1.5rem">البقرة</span></div>
+      <div class="title">سورة <span id="surah-title" class="quran-font" style="font-size:1.6rem">البقرة</span></div>
       <div class="decor"><span></span><span></span></div>
     </div>
+
+    <!-- بسم الله (تظهر تلقائيًا لكل سورة عدا التوبة) -->
+    <div id="basmala" class="basmala quran-font" style="font-size:1.4rem">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
 
     <!-- أدوات رئيسية -->
     <div class="tools" aria-label="أدوات">
       <select id="chapter" aria-label="اختيار السورة" title="السورة"></select>
-      <select id="juz" aria-label="اختيار الجزء" title="الجزء">
-        <option value="">اختر جزءًا</option>
-      </select>
-      <select id="hizb" aria-label="اختيار الحزب" title="الحزب">
-        <option value="">اختر حزبًا</option>
-      </select>
-      <select id="rub" aria-label="اختيار الربع" title="الربع">
-        <option value="">اختر ربعًا</option>
-      </select>
+      <select id="juz" aria-label="اختيار الجزء" title="الجزء"><option value="">اختر جزءًا</option></select>
+      <select id="hizb" aria-label="اختيار الحزب" title="الحزب"><option value="">اختر حزبًا</option></select>
+      <select id="rub" aria-label="اختيار الربع" title="الربع"><option value="">اختر ربعًا</option></select>
       <select id="reciter" aria-label="اختيار القارئ" title="القارئ"></select>
       <button id="bookmark" class="btn" aria-label="حفظ الموضع">حفظ</button>
       <button id="resume" class="btn" aria-label="استئناف القراءة">استئناف</button>
@@ -179,7 +202,7 @@
   <!-- بادج رقم الصفحة -->
   <div class="page-badge" aria-label="رقم الصفحة">صفحة <span id="page-num">2</span></div>
 
-  <!-- مشغل الصوت -->
+  <!-- مشغل الصوت الذهبي -->
   <div class="audio-bar" aria-label="مشغل الصوت">
     <div class="row">
       <button id="play" class="btn" title="تشغيل/إيقاف">▶️</button>
@@ -218,7 +241,7 @@
     <audio id="audio" preload="none"></audio>
   </div>
 
-  <!-- نافذة التفسير -->
+  <!-- نافذة التفسير (ابن كثير) -->
   <div id="tafsir-modal" class="modal" aria-hidden="true">
     <div class="card">
       <h3 id="tafsir-title">تفسير ابن كثير</h3>
@@ -240,22 +263,30 @@
 
 <script>
 /* ===================== مصادر البيانات ===================== */
-const CHAPTER_CDN = (n) => `https://cdn.jsdelivr.net/npm/quran-json@3.1.2/dist/chapters/${n}.json`;            // نص السورة (عثماني)  citehttps://www.jsdelivr.com/package/npm/quran-json
-const VERSES_BY_CHAPTER = (n) => `https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${n}`;       // آيات حسب السورة    citehttps://api-docs.quran.com/docs/content_apis_versioned/quran-verses-uthmani/
-const VERSES_BY_JUZ     = (j) => `https://api.quran.com/api/v4/quran/verses/uthmani?juz_number=${j}`;           // آيات حسب الجزء      citehttps://api-docs.quran.com/docs/content_apis_versioned/quran-verses-uthmani/
-const VERSES_BY_HIZB    = (h) => `https://api.quran.com/api/v4/quran/verses/uthmani?hizb_number=${h}`;          // آيات حسب الحزب      citehttps://api-docs.quran.com/docs/content_apis_versioned/quran-verses-uthmani/
-const VERSES_BY_RUB     = (r) => `https://api.quran.com/api/v4/quran/verses/uthmani?rub_el_hizb_number=${r}`;   // آيات حسب الربع      citehttps://api-docs.quran.com/docs/content_apis_versioned/quran-verses-uthmani/
-const VERSE_KEY         = (vk) => `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${vk}`;           // آية محددة           citehttps://api-docs.quran.com/docs/content_apis_versioned/quran-verses-uthmani/
-const AYAH_AUDIO        = (rid, vk) => `https://api.quran.com/api/v4/recitations/${rid}/by_ayah/${vk}`;          // صوت الآية           citehttps://api-docs.quran.com/docs/content_apis_versioned/list-ayah-recitation/
-const AYAH_TAFSIR       = (tid, vk) => `https://api.quran.com/api/v4/tafsirs/${tid}/by_ayah/${vk}?language=ar`;  // تفسير ابن كثير      citehttps://api-docs.quran.com/docs/content_apis_versioned/list-ayah-tafsirs/
+/* نص السورة (عثماني) عبر jsDelivr (quran-json): chapters/{n}.json */
+const CHAPTER_CDN = (n) => `https://cdn.jsdelivr.net/npm/quran-json@3.1.2/dist/chapters/${n}.json`;
+
+/* واجهات Quran.com v4 — آيات بالرسم العثماني */
+const VERSES_BY_CHAPTER = (n) => `https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${n}`;
+const VERSES_BY_JUZ     = (j) => `https://api.quran.com/api/v4/quran/verses/uthmani?juz_number=${j}`;
+const VERSES_BY_HIZB    = (h) => `https://api.quran.com/api/v4/quran/verses/uthmani?hizb_number=${h}`;
+const VERSES_BY_RUB     = (r) => `https://api.quran.com/api/v4/quran/verses/uthmani?rub_el_hizb_number=${r}`;
+const VERSE_KEY         = (vk) => `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${vk}`;
+
+/* الصوت والتفسير */
+const AYAH_AUDIO        = (rid, vk) => `https://api.quran.com/api/v4/recitations/${rid}/by_ayah/${vk}`;
+const AYAH_TAFSIR       = (tid, vk) => `https://api.quran.com/api/v4/tafsirs/${tid}/by_ayah/${vk}?language=ar`;
 const DEFAULT_TAFSIR_ID = 171;
-const CHAPTERS_LIST     = `https://api.quran.com/api/v4/chapters?language=ar`;                                   // قائمة السور         citehttps://api.quran.com/api/v4/chapters
+
+/* قائمة السور */
+const CHAPTERS_LIST     = `https://api.quran.com/api/v4/chapters?language=ar`;
 
 /* ===================== عناصر DOM ===================== */
 const pageEl   = document.getElementById('page');
 const pageBadge= document.getElementById('page-num');
 const surahNameEl = document.getElementById('surah-name');
 const surahTitleEl= document.getElementById('surah-title');
+const basmalaEl    = document.getElementById('basmala');
 const juzEl    = document.getElementById('juz-num');
 
 const btnPrev  = document.getElementById('prev');
@@ -339,7 +370,7 @@ async function populateChapters(){
   chapterSel.innerHTML=''; chapters.forEach(c=>{ const opt=document.createElement('option'); opt.value=c.id; opt.textContent=`${c.id}. ${c.name_arabic}`; chapterSel.appendChild(opt); });
   if(!chapterSel.value) chapterSel.value = String(currentChapter);
 }
-function populateJuzHizbRub(){
+function populateRanges(){
   // أجزاء 1..30
   juzSel.innerHTML = '<option value="">اختر جزءًا</option>';
   for(let j=1;j<=30;j++){ const opt=document.createElement('option'); opt.value=String(j); opt.textContent=`الجزء ${j}`; juzSel.appendChild(opt); }
@@ -377,7 +408,9 @@ async function loadChapter(ch){
     const resMap = await fetch(VERSES_BY_CHAPTER(currentChapter));
     const mapJson = await resMap.json();
     await buildPagesFromList(mapJson.verses||[], suraName);
-    surahNameEl.textContent  = suraName; surahTitleEl.textContent = suraName; juzEl.textContent = '';
+    surahNameEl.textContent  = suraName; surahTitleEl.textContent = suraName;
+    basmalaEl.style.display = (currentChapter === 9) ? 'none' : 'block';
+    juzEl.textContent = '';
     saveState();
   }catch(e){
     console.error(e);
@@ -393,6 +426,7 @@ async function loadJuz(j){
     juzEl.textContent = j;
     const first = (d.verses||[])[0];
     if(first){ const s = chapters.find(c=>c.id===first.chapter_id); const n = s ? s.name_arabic : ''; surahNameEl.textContent=n; surahTitleEl.textContent=n; }
+    basmalaEl.style.display = ((d.verses||[])[0]?.chapter_id === 9) ? 'none' : 'block';
     saveState();
   }catch(e){ console.error(e); pageEl.innerHTML = '<div class="ayah">تعذّر تحميل الجزء.</div>'; }
 }
@@ -404,6 +438,7 @@ async function loadHizb(h){
     await buildPagesFromList(d.verses||[]);
     const first = (d.verses||[])[0];
     if(first){ const s = chapters.find(c=>c.id===first.chapter_id); const n = s ? s.name_arabic : ''; surahNameEl.textContent=n; surahTitleEl.textContent=n; juzEl.textContent = first.juz_number || ''; }
+    basmalaEl.style.display = ((d.verses||[])[0]?.chapter_id === 9) ? 'none' : 'block';
     saveState();
   }catch(e){ console.error(e); pageEl.innerHTML = '<div class="ayah">تعذّر تحميل الحزب.</div>'; }
 }
@@ -415,6 +450,7 @@ async function loadRub(r){
     await buildPagesFromList(d.verses||[]);
     const first = (d.verses||[])[0];
     if(first){ const s = chapters.find(c=>c.id===first.chapter_id); const n = s ? s.name_arabic : ''; surahNameEl.textContent=n; surahTitleEl.textContent=n; juzEl.textContent = first.juz_number || ''; }
+    basmalaEl.style.display = ((d.verses||[])[0]?.chapter_id === 9) ? 'none' : 'block';
     saveState();
   }catch(e){ console.error(e); pageEl.innerHTML = '<div class="ayah">تعذّر تحميل الربع.</div>'; }
 }
@@ -587,7 +623,7 @@ shareBtn.addEventListener('click', ()=>{
   const base = location.href.split('#')[0];
   const v = (pages[currentPageIndex]?.verses?.[currentIndex]?.verse_key) || '';
   const url = `${base}#surah=${currentChapter}&page=${pages[currentPageIndex].pageNumber}${v?`&vk=${encodeURIComponent(v)}`:''}`;
-  if(navigator.share){ navigator.share({title:'مصحف أم القرى', text:'قراءة القرآن', url}); }
+  if(navigator.share){ navigator.share({title:'مصحف أم القرى (الذهبي)', text:'قراءة القرآن', url}); }
   else { navigator.clipboard.writeText(url); showToast('تم نسخ الرابط ✅'); }
 });
 
@@ -659,17 +695,17 @@ installBtn.addEventListener('click', async ()=>{ if(pendingInstallPrompt){ pendi
 /* ===================== PWA بملف واحد (Manifest + SW عبر Blob) ===================== */
 (function setupPWA(){
   const manifest = {
-    name: "مصحف أم القرى",
+    name: "مصحف أم القرى (الذهبي)",
     short_name: "مصحف أم القرى",
     lang: "ar",
     start_url: "./",
     scope: "./",
     display: "standalone",
-    theme_color: "#0f1216",
-    background_color: "#0f1216",
+    theme_color: "#0b0f14",
+    background_color: "#0b0f14",
     icons: [
-      { src: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iOTYiIGZpbGw9IiMxNDEyMTYiLz48dGV4dCB4PSI5NiIgeT0iMTA2IiBmb250LXNpemU9IjQyIiBmaWxsPSIjZDRhZjM3IiBmb250LWZhbWlseT0iQXJpYWwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuKcqSDYp9mE2YXYp9mEINmE2YbZiNmEPC90ZXh0Pjwvc3ZnPg==", sizes:"192x192", type:"image/svg+xml" },
-      { src: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyNTYiIGZpbGw9IiMxNDEyMTYiLz48dGV4dCB4PSIyNTYiIHk9IjI3NiIgZm9udC1zaXplPSI4MCIgZmlsbD0iI2Q0YWYzNyIgZm9udC1mYW1pbHk9IkFyaWFsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7inKkg2KfZhNmF2KfZhCDZhNmG2YjZhDwvdGV4dD48L3N2Zz4=", sizes:"512x512", type:"image/svg+xml" }
+      { src: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iOTYiIGZpbGw9IiMwYjBmMTQiLz48dGV4dCB4PSI5NiIgeT0iMTA2IiBmb250LXNpemU9IjQyIiBmaWxsPSIjZDRhZjM3IiBmb250LWZhbWlseT0iQXJpYWwiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuKcqSDYp9mE2YXYp9mEINmE2YbZiNmEPC90ZXh0Pjwvc3ZnPg==", sizes:"192x192", type:"image/svg+xml" },
+      { src: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyNTYiIGZpbGw9IiMwYjBmMTQiLz48dGV4dCB4PSIyNTYiIHk9IjI3NiIgZm9udC1zaXplPSI4MCIgZmlsbD0iI2Q0YWYzNyIgZm9udC1mYW1pbHk9IkFyaWFsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7inKkg2KfZhNmF2KfZhCDZhNmG2YjZhDwvdGV4dD48L3N2Zz4=", sizes:"512x512", type:"image/svg+xml" }
     ]
   };
   const mBlob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
@@ -678,7 +714,7 @@ installBtn.addEventListener('click', async ()=>{ if(pendingInstallPrompt){ pendi
 
   if ('serviceWorker' in navigator) {
     const swCode = `
-      const CACHE='mushaf-umalqura-v3';
+      const CACHE='mushaf-umalqura-gold-v1';
       const STATIC=['./','./index.html'];
       self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(STATIC)));});
       self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim());});
@@ -716,7 +752,7 @@ installBtn.addEventListener('click', async ()=>{ if(pendingInstallPrompt){ pendi
 (async function init(){
   populateReciters();
   await populateChapters();
-  populateJuzHizbRub();
+  populateRanges();
   loadState();
   if(!chapterSel.value) chapterSel.value = String(currentChapter);
   await loadChapter(chapterSel.value);
@@ -732,5 +768,6 @@ installBtn.addEventListener('click', async ()=>{ if(pendingInstallPrompt){ pendi
 </script>
 </body>
 </html>
+``
 
 
