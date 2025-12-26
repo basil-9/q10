@@ -4,20 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مصحف أم القرى - عرض الصفحات</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    https://cdn.tailwindcss.com</script>
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Tajawal:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    https://fonts.googleapis.com/css2?family=Amiri&family=Tajawal:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap
     <style>
         :root { --primary: #d4af37; --bg-light: #fcfbf7; }
         body { font-family: 'Tajawal', sans-serif; background: var(--bg-light); transition: 0.3s; }
         .quran-page { font-family: 'Scheherazade New', serif; line-height: 2.8; text-align: justify; text-align-last: center; }
+
         .ayah-span { cursor: pointer; transition: 0.2s; padding: 2px 4px; border-radius: 4px; display: inline; }
         .ayah-span:hover { background: rgba(212, 175, 55, 0.15); }
         .ayah-active { background: #fff3cd !important; color: #856404; box-shadow: 0 0 10px rgba(212,175,55,0.3); }
-        .ayah-bookmarked { background: #d1e7dd !important; border-bottom: 2px solid #0f5132; }
-        .dark .ayah-bookmarked { background: #064e3b !important; color: #ecfdf5; }
+
+        /* ✅ New bookmark highlight (changed color on saving reading position) */
+        .ayah-bookmarked { 
+            background: #ffe9c7 !important; 
+            color: #7a4a00; 
+            border: 1px solid #f5c16a; 
+            box-shadow: 0 0 0 2px rgba(245, 193, 106, 0.25);
+        }
+        .dark .ayah-bookmarked { 
+            background: #3b2a12 !important; 
+            color: #fbd38d; 
+            border-color: #8a6b3b;
+        }
+
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
     </style>
@@ -31,6 +44,7 @@
                 <h1 class="text-xl font-bold text-amber-600">مصحف أم القرى</h1>
             </div>
 
+            <!-- ✅ unified search: surah name + ayah text + ayah key (e.g., 2:255) -->
             <div class="flex-1 max-w-md relative">
                 <input id="globalSearch" type="text" placeholder="ابحث عن سورة أو آية..." 
                        class="w-full bg-slate-100 dark:bg-zinc-800 rounded-full px-5 py-2 text-sm outline-none focus:ring-2 ring-amber-500">
@@ -38,6 +52,7 @@
             </div>
 
             <div class="flex items-center gap-3">
+                <!-- ✅ Reciters list with Baleela/Sudais removed -->
                 <select id="reciterSelect" class="bg-slate-100 dark:bg-zinc-800 rounded-lg px-3 py-2 text-xs outline-none"></select>
                 <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 rounded-full bg-slate-100 dark:bg-zinc-800">🌓</button>
             </div>
@@ -46,14 +61,21 @@
 
     <main class="max-w-4xl mx-auto p-4 md:p-10">
         <div id="quran-paper" class="bg-white dark:bg-zinc-900 shadow-2xl rounded-[2rem] p-8 md:p-16 border border-amber-50 dark:border-zinc-800 relative min-h-[80vh]">
+
             <div id="pageHeader" class="flex justify-between items-center mb-10 border-b pb-4 opacity-60 text-sm">
                 <span id="surahInfo">سورة الفاتحة</span>
                 <span class="text-amber-600 font-bold">بِسْمِ اللَّـهِ الرَّحْمَـٰنِ الرَّحِيمِ</span>
-                <span id="pageInfo">الجزء ١</span>
+                <span id="pageInfo">الصفحة ١ • الجزء ١</span>
             </div>
 
-            <div id="pageContent" class="quran-page text-3xl md:text-4xl">
-                </div>
+            <div id="pageContent" class="quran-page text-3xl md:text-4xl"></div>
+
+            <!-- ✅ Page navigator -->
+            <div class="mt-8 flex items-center justify-center gap-4">
+                <button id="prevPageBtn" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-amber-50 dark:hover:bg-zinc-700">⬅️ الصفحة السابقة</button>
+                <div class="text-sm opacity-60">عرض بالمصحف (صفحات)</div>
+                <button id="nextPageBtn" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-amber-50 dark:hover:bg-zinc-700">الصفحة التالية ➡️</button>
+            </div>
         </div>
 
         <div id="tafsirCard" class="mt-6 bg-amber-50 dark:bg-zinc-800/50 p-6 rounded-2xl border-r-4 border-amber-500 hidden transition-all">
@@ -75,6 +97,8 @@
 
     <script>
         const API = "https://api.quran.com/api/v4";
+
+        // ✅ Reciters (Baleela & Sudais removed as requested)
         const reciters = [
             { id: "Abdullaah_3awwaad_Al-Juhaynee_128kbps", name: "عبدالله الجهني" },
             { id: "Maher_AlMuaiqly_64kbps", name: "ماهر المعيقلي" },
@@ -84,20 +108,63 @@
 
         let currentAyahs = [];
         let bookmarkedKey = localStorage.getItem('quran_bookmark_key');
+        let currentPage = 1;      // ✅ mushaf page
+        const MAX_PAGE = 604;     // pages in Madani Mushaf
+        let chaptersMap = {};     // { id: {name_arabic: '', pagesRange: [start,end]? }, ... }
 
-        window.onload = () => {
+        window.onload = async () => {
+            // populate reciters
             const rSelect = document.getElementById('reciterSelect');
             rSelect.innerHTML = reciters.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
-            loadSurah(1, "سورة الفاتحة");
+
+            // load chapters (for local surah search + headers)
+            await loadChapters();
+
+            // default: show page 1 (Al-Fatiha first page)
+            await loadPage(1);
+
             initSearch();
+
+            // page navigation
+            document.getElementById('prevPageBtn').onclick = async () => {
+                if (currentPage > 1) await loadPage(currentPage - 1);
+            };
+            document.getElementById('nextPageBtn').onclick = async () => {
+                if (currentPage < MAX_PAGE) await loadPage(currentPage + 1);
+            };
         };
 
-        // تحميل السورة بنظام الصفحة
-        async function loadSurah(id, name) {
-            document.getElementById('surahInfo').textContent = name;
-            const res = await fetch(`${API}/quran/verses/uthmani?chapter_number=${id}`);
+        // ✅ load chapters (names for header and search)
+        async function loadChapters() {
+            try {
+                const res = await fetch(`${API}/chapters?language=ar`);
+                const data = await res.json();
+                (data.chapters || []).forEach(ch => {
+                    chaptersMap[ch.id] = { name: ch.name_arabic };
+                });
+            } catch (e) {
+                console.warn('Failed to load chapters list', e);
+            }
+        }
+
+        // ✅ load by mushaf page (verses are still segmented, but rendered as one page flow)
+        async function loadPage(pageNumber) {
+            const res = await fetch(`${API}/quran/verses/uthmani_by_page?page_number=${pageNumber}`);
             const data = await res.json();
-            currentAyahs = data.verses;
+            currentAyahs = data.verses || [];
+            currentPage = pageNumber;
+
+            // Header info: surah of first verse + juz of first verse
+            if (currentAyahs.length > 0) {
+                const first = currentAyahs[0];
+                const surahName = chaptersMap[first.chapter_id]?.name || `سورة ${first.chapter_id}`;
+                document.getElementById('surahInfo').textContent = surahName;
+                document.getElementById('pageInfo').textContent = `الصفحة ${currentPage} • الجزء ${first.juz_number}`;
+            } else {
+                document.getElementById('surahInfo').textContent = '...';
+                document.getElementById('pageInfo').textContent = `الصفحة ${currentPage}`;
+            }
+
             renderPage();
         }
 
@@ -109,7 +176,7 @@
                               class="ayah-span ${isBookmarked ? 'ayah-bookmarked' : ''}" 
                               onclick="handleAyahClick(${i})">
                         ${v.text_uthmani} 
-                        <span class="text-amber-600 font-sans text-xl mx-1">﴿${i+1}﴾</span>
+                        <span class="text-amber-600 font-sans text-xl mx-1">﴿${v.ayah_number}﴾</span>
                     </span>`;
             }).join(' ');
         }
@@ -117,32 +184,32 @@
         async function handleAyahClick(index) {
             const ayah = currentAyahs[index];
             const [s, a] = ayah.verse_key.split(':');
-            
-            // 1. Highlight
+
+            // 1) highlight
             document.querySelectorAll('.ayah-span').forEach(el => el.classList.remove('ayah-active'));
             document.getElementById(`ayah-${index}`).classList.add('ayah-active');
 
-            // 2. Audio
+            // 2) audio
             const reciter = document.getElementById('reciterSelect').value;
-            const audioUrl = `https://www.everyayah.com/data/${reciter}/${s.padStart(3,'0')}${a.padStart(3,'0')}.mp3`;
+            const audioUrl = `https://www.everyayah.com/data/${reciter}/${String(s).padStart(3,'0')}${String(a).padStart(3,'0')}.mp3`;
             const audio = document.getElementById('audioElement');
             audio.src = audioUrl;
             audio.play();
 
-            // 3. UI
+            // 3) UI
             document.getElementById('playerBar').classList.remove('translate-y-32');
             document.getElementById('currentPlaying').textContent = `جاري تشغيل آية رقم ${a}`;
             document.getElementById('mainPlayBtn').textContent = '⏸️';
 
-            // 4. Tafsir
+            // 4) tafsir (التفسير الميسر - id=16)
             loadTafsir(ayah.verse_key);
 
-            // 5. Bookmark Option (Automatic on click)
+            // 5) bookmark: ✅ changes color immediately
             saveBookmark(ayah.verse_key);
 
-            // Auto-next
+            // auto-next within page
             audio.onended = () => {
-                if(index + 1 < currentAyahs.length) handleAyahClick(index + 1);
+                if (index + 1 < currentAyahs.length) handleAyahClick(index + 1);
             };
         }
 
@@ -151,70 +218,138 @@
             const text = document.getElementById('tafsirText');
             card.classList.remove('hidden');
             text.textContent = "جاري التحميل...";
-            const res = await fetch(`${API}/tafsirs/16/by_ayah/${key}`);
-            const data = await res.json();
-            text.textContent = data.tafsir.text;
+            try {
+                const res = await fetch(`${API}/tafsirs/16/by_ayah/${key}`);
+                const data = await res.json();
+                text.textContent = data.tafsir.text;
+            } catch (e) {
+                text.textContent = "تعذر تحميل التفسير. حاول لاحقًا.";
+            }
         }
 
         function saveBookmark(key) {
             bookmarkedKey = key;
             localStorage.setItem('quran_bookmark_key', key);
-            // تحديث الألوان فوراً دون إعادة تحميل
+            // ✅ update colors immediately
             document.querySelectorAll('.ayah-span').forEach(el => el.classList.remove('ayah-bookmarked'));
             const activeAyah = currentAyahs.findIndex(v => v.verse_key === key);
-            if(activeAyah !== -1) document.getElementById(`ayah-${activeAyah}`).classList.add('ayah-bookmarked');
+            if (activeAyah !== -1) document.getElementById(`ayah-${activeAyah}`).classList.add('ayah-bookmarked');
         }
 
-        // محرك البحث المزدوج
+        // ✅ unified dual-mode search (surah names locally + ayah text via API + ayah key "S:A")
         function initSearch() {
             const input = document.getElementById('globalSearch');
             const results = document.getElementById('searchResults');
 
             input.addEventListener('input', async (e) => {
                 const query = e.target.value.trim();
-                if (query.length < 2) { results.classList.add('hidden'); return; }
-
-                // البحث في السور (محلي) والآيات (API)
-                const res = await fetch(`${API}/search?q=${encodeURIComponent(query)}&language=ar`);
-                const data = await res.json();
+                if (query.length < 2) { results.classList.add('hidden'); results.innerHTML = ''; return; }
 
                 results.innerHTML = '';
                 results.classList.remove('hidden');
 
-                if (data.results.length > 0) {
-                    data.results.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = "p-4 hover:bg-amber-50 dark:hover:bg-zinc-700 cursor-pointer border-b dark:border-zinc-700";
-                        div.innerHTML = `<div class="text-xs text-amber-600">${item.verse_key}</div>
-                                         <div class="text-sm font-bold">${item.text.replace(/<(?:.|\n)*?>/gm, '')}</div>`;
-                        div.onclick = () => {
-                            const [sId] = item.verse_key.split(':');
-                            loadSurah(sId, "نتائج البحث").then(() => {
-                                const index = currentAyahs.findIndex(v => v.verse_key === item.verse_key);
-                                if(index !== -1) handleAyahClick(index);
-                            });
-                            results.classList.add('hidden');
-                        };
-                        results.appendChild(div);
-                    });
-                } else {
-                    results.innerHTML = '<div class="p-4 text-center opacity-50">لا توجد نتائج</div>';
+                // 1) direct ayah key pattern "S:A"
+                const keyMatch = query.match(/^(\d{1,3})\s*[:：]\s*(\d{1,3})$/);
+                if (keyMatch) {
+                    const sId = parseInt(keyMatch[1], 10);
+                    const aNum = parseInt(keyMatch[2], 10);
+                    const div = document.createElement('div');
+                    div.className = "p-4 hover:bg-amber-50 dark:hover:bg-zinc-700 cursor-pointer border-b dark:border-zinc-700";
+                    div.innerHTML = `<div class="text-xs text-amber-600">${sId}:${aNum}</div>
+                                     <div class="text-sm font-bold">انتقال مباشر إلى الآية</div>`;
+                    div.onclick = async () => {
+                        // load surah to get verse page, then load that page and focus
+                        const res = await fetch(`${API}/quran/verses/uthmani?chapter_number=${sId}`);
+                        const data = await res.json();
+                        const verses = data.verses || [];
+                        const v = verses.find(x => Number(x.ayah_number) === aNum);
+                        if (v) {
+                            await loadPage(v.page_number);
+                            const idx = currentAyahs.findIndex(x => x.verse_key === v.verse_key);
+                            if (idx !== -1) handleAyahClick(idx);
+                        }
+                        results.classList.add('hidden');
+                    };
+                    results.appendChild(div);
+                }
+
+                // 2) surah name local filter
+                const chapterMatches = Object.entries(chaptersMap)
+                    .filter(([id, obj]) => obj.name.includes(query))
+                    .slice(0, 10);
+
+                chapterMatches.forEach(([id, obj]) => {
+                    const div = document.createElement('div');
+                    div.className = "p-4 hover:bg-amber-50 dark:hover:bg-zinc-700 cursor-pointer border-b dark:border-zinc-700";
+                    div.innerHTML = `<div class="text-xs text-amber-600">سورة</div>
+                                     <div class="text-sm font-bold">${obj.name}</div>`;
+                    div.onclick = async () => {
+                        // find the first page that contains this surah
+                        // simplest approach: load first verse of chapter to get its page_number
+                        const res = await fetch(`${API}/quran/verses/uthmani?chapter_number=${id}`);
+                        const data = await res.json();
+                        const verses = data.verses || [];
+                        if (verses.length > 0) {
+                            await loadPage(verses[0].page_number);
+                        }
+                        results.classList.add('hidden');
+                    };
+                    results.appendChild(div);
+                });
+
+                // 3) ayah text API search
+                try {
+                    const res = await fetch(`${API}/search?q=${encodeURIComponent(query)}&language=ar`);
+                    const data = await res.json();
+
+                    if ((data.results || []).length > 0) {
+                        data.results.slice(0, 20).forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = "p-4 hover:bg-amber-50 dark:hover:bg-zinc-700 cursor-pointer border-b dark:border-zinc-700";
+                            div.innerHTML = `<div class="text-xs text-amber-600">${item.verse_key}</div>
+                                             <div class="text-sm font-bold">${item.text.replace(/<(?:.|\n)*?>/gm, '')}</div>`;
+                            div.onclick = async () => {
+                                const [sId] = item.verse_key.split(':');
+                                const res = await fetch(`${API}/quran/verses/uthmani?chapter_number=${sId}`);
+                                const data = await res.json();
+                                const verses = data.verses || [];
+                                const target = verses.find(v => v.verse_key === item.verse_key);
+                                if (target) {
+                                    await loadPage(target.page_number);
+                                    const idx = currentAyahs.findIndex(v => v.verse_key === item.verse_key);
+                                    if (idx !== -1) handleAyahClick(idx);
+                                }
+                                results.classList.add('hidden');
+                            };
+                            results.appendChild(div);
+                        });
+                    } else {
+                        if (!results.innerHTML) {
+                            results.innerHTML = '<div class="p-4 text-center opacity-50">لا توجد نتائج</div>';
+                        }
+                    }
+                } catch (e) {
+                    // fall back message
+                    if (!results.innerHTML) {
+                        results.innerHTML = '<div class="p-4 text-center opacity-50">تعذر الاتصال بمحرك البحث</div>';
+                    }
                 }
             });
         }
 
-        // التحكم بالصوت
+        // audio controls
         document.getElementById('mainPlayBtn').onclick = () => {
             const audio = document.getElementById('audioElement');
-            if(audio.paused) { audio.play(); document.getElementById('mainPlayBtn').textContent = '⏸️'; }
+            if (audio.paused) { audio.play(); document.getElementById('mainPlayBtn').textContent = '⏸️'; }
             else { audio.pause(); document.getElementById('mainPlayBtn').textContent = '▶️'; }
         };
 
         const audio = document.getElementById('audioElement');
         audio.ontimeupdate = () => {
             const p = (audio.currentTime / audio.duration) * 100;
-            document.getElementById('progress').style.width = p + '%';
+            document.getElementById('progress').style.width = (isFinite(p) ? p : 0) + '%';
         };
     </script>
 </body>
 </html>
+          
