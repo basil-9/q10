@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>مصحف أم القرى - الإصدار الاحترافي</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#d4af37',
+            darkBg: '#121212',
+            darkCard: '#1e1e1e'
+          }
+        }
+      }
+    }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --gold: #d4af37; }
+    body { font-family: 'Tajawal', sans-serif; transition: all 0.3s ease; }
+    .quran-font { font-family: 'Scheherazade New', serif; line-height: 2.2; }
+    
+    /* مخصصات السكرول بار */
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+    
+    /* حركات وتأثيرات */
+    .surah-card:hover { transform: translateY(-2px); transition: all 0.2s; }
+    .ayah-highlight:hover { background: rgba(212, 175, 55, 0.05); }
+    .dark .ayah-highlight:hover { background: rgba(212, 175, 55, 0.1); }
+  </style>
+</head>
+<body class="bg-[#f8f9fa] dark:bg-darkBg text-slate-800 dark:text-gray-200">
+
+  <header class="sticky top-0 z-50 bg-white/70 dark:bg-darkCard/70 backdrop-blur-xl border-b dark:border-zinc-800 shadow-sm px-4 py-3">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-primary rounded-lg shadow-lg shadow-primary/30">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        <h1 class="text-xl font-bold bg-gradient-to-l from-primary to-amber-600 bg-clip-text text-transparent hidden sm:block">مصحف أم القرى</h1>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-4">
+        <select id="reciter-select" class="bg-gray-100 dark:bg-zinc-800 border-none rounded-full px-4 py-2 text-sm focus:ring-2 ring-primary outline-none cursor-pointer font-medium"></select>
+        <button id="theme-toggle" class="p-2.5 bg-gray-100 dark:bg-zinc-800 rounded-full hover:bg-primary/20 transition-colors">🌓</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex h-[calc(100vh-73px)] max-w-[1600px] mx-auto overflow-hidden">
+    
+    <aside class="w-80 border-l dark:border-zinc-800 bg-white dark:bg-darkCard hidden lg:flex flex-col">
+      <div class="p-4 border-b dark:border-zinc-800">
+        <div class="relative">
+          <input id="surah-search" type="text" placeholder="ابحث عن سورة..." class="w-full bg-gray-50 dark:bg-zinc-900 border-none rounded-xl py-2.5 pr-10 pl-4 text-sm focus:ring-1 ring-primary outline-none">
+          <span class="absolute right-3 top-3 text-gray-400">🔍</span>
+        </div>
+      </div>
+      <div id="surah-list" class="flex-1 overflow-y-auto custom-scroll p-2 space-y-1">
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto custom-scroll bg-[#fcfbf7] dark:bg-darkBg p-4 sm:p-8 relative">
+      <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-10 space-y-2">
+          <span id="surah-info" class="text-primary font-bold tracking-widest text-sm uppercase">جاري التحميل...</span>
+          <h2 id="current-surah-name" class="text-5xl font-bold dark:text-white quran-font">الفاتحة</h2>
+          <div class="flex justify-center items-center gap-4 py-4">
+             <div class="h-[1px] w-20 bg-primary/30"></div>
+             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Bismillah.svg/1200px-Bismillah.svg.png" class="h-12 dark:invert opacity-80" alt="بسملة">
+             <div class="h-[1px] w-20 bg-primary/30"></div>
+          </div>
+        </div>
+
+        <div id="ayahs-container" class="bg-white dark:bg-darkCard p-8 sm:p-12 rounded-[2rem] shadow-xl shadow-black/5 border border-amber-50 dark:border-zinc-800 text-right leading-loose">
+          </div>
+
+        <div id="tafsir-panel" class="mt-8 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-zinc-900 dark:to-zinc-800 p-6 rounded-3xl border-r-4 border-primary hidden shadow-lg animate-fade-in">
+          <div class="flex items-center gap-2 mb-3 text-primary">
+            <span class="text-xl">📖</span>
+            <h3 class="font-bold">التفسير الميسر</h3>
+          </div>
+          <p id="tafsir-content" class="text-lg leading-relaxed text-slate-700 dark:text-gray-300"></p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="player-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-3xl bg-white/80 dark:bg-darkCard/80 backdrop-blur-2xl border border-white/20 dark:border-zinc-700 shadow-2xl rounded-[2rem] p-4 flex items-center gap-4 z-50 transform translate-y-20 transition-transform duration-500">
+    <button id="play-pause" class="w-12 h-12 flex items-center justify-center bg-primary text-white rounded-full hover:scale-105 transition shadow-lg shadow-primary/40">
+      <span id="play-icon">▶️</span>
+    </button>
+    
+    <div class="flex-1">
+      <div id="now-playing-title" class="text-xs font-bold text-primary mb-1 truncate">اختر آية للاستماع</div>
+      <div class="relative w-full h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+        <div id="audio-progress" class="absolute top-0 right-0 h-full bg-primary w-0 transition-all duration-300"></div>
+      </div>
+    </div>
+
+    <div class="text-[10px] font-mono opacity-50 hidden sm:block">
+      <span id="time-current">00:00</span>
+    </div>
+
+    <audio id="audio-engine" class="hidden"></audio>
+  </div>
+
+  <script>
+    // القراء المطلوبين مع معرفاتهم من API
+    const reciters = [
+      { id: 3, name: "عبدالرحمن السديس" },
+      { id: 8, name: "بندر بليلة" },
+      { id: 10, name: "عبدالله الجهني" },
+      { id: 6, name: "ماهر المعيقلي" },
+      { id: 11, name: "ياسر الدوسري" },
+      { id: 12, name: "سعود الشريم" },
+      { id: 7, name: "مشاري العفاسي" },
+      { id: 1, name: "محمود خليل الحصري" }
+    ];
+
+    let allChapters = [];
+    const surahList = document.getElementById('surah-list');
+    const ayahsContainer = document.getElementById('ayahs-container');
+    const reciterSelect = document.getElementById('reciter-select');
+    const audioEngine = document.getElementById('audio-engine');
+    const playerBar = document.getElementById('player-bar');
+
+    // 1. تشغيل التطبيق
+    async function startApp() {
+      // تعبئة القراء
+      reciterSelect.innerHTML = reciters.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+      
+      // جلب السور
+      const res = await fetch('https://api.quran.com/api/v4/chapters?language=ar');
+      const data = await res.json();
+      allChapters = data.chapters;
+      renderSurahList(allChapters);
+      
+      // تحميل الفاتحة افتراضياً
+      loadSurah(1, "سورة الفاتحة");
+
+      // البحث
+      document.getElementById('surah-search').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = allChapters.filter(c => c.name_arabic.includes(term) || c.id == term);
+        renderSurahList(filtered);
+      });
+    }
+
+    // 2. عرض قائمة السور
+    function renderSurahList(chapters) {
+      surahList.innerHTML = chapters.map(s => `
+        <div onclick="loadSurah(${s.id}, '${s.name_arabic}')" class="surah-card p-3 rounded-xl cursor-pointer hover:bg-amber-50 dark:hover:bg-zinc-800 group transition-all border border-transparent hover:border-primary/20">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-zinc-900 rounded-lg text-xs font-bold group-hover:bg-primary group-hover:text-white transition-colors">${s.id}</span>
+              <span class="font-bold text-sm">${s.name_arabic}</span>
+            </div>
+            <span class="text-[10px] opacity-40 uppercase">${s.revelation_place === 'makkah' ? 'مكية' : 'مدنية'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 3. تحميل السورة
+    async function loadSurah(id, name) {
+      document.getElementById('current-surah-name').textContent = name;
+      document.getElementById('surah-info').textContent = `سورة رقم ${id}`;
+      ayahsContainer.innerHTML = '<div class="text-center py-20 animate-pulse text-primary italic">جاري جلب كلام الله...</div>';
+      document.getElementById('tafsir-panel').classList.add('hidden');
+
+      const res = await fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${id}`);
+      const data = await res.json();
+      
+      ayahsContainer.innerHTML = '';
+      data.verses.forEach((v, idx) => {
+        const ayahSpan = document.createElement('span');
+        ayahSpan.className = "ayah-highlight quran-font text-3xl md:text-4xl inline p-1 rounded-lg cursor-pointer transition-all duration-300 select-none";
+        ayahSpan.innerHTML = `${v.text_uthmani} <span class="text-primary font-sans text-xl mx-1 inline-flex items-center justify-center w-10 h-10 border border-primary/20 rounded-full">(${idx + 1})</span> `;
+        ayahSpan.onclick = () => playAyah(v.verse_key, name, idx + 1);
+        ayahsContainer.appendChild(ayahSpan);
+      });
+      
+      // غلق القائمة في الموبايل عند الاختيار
+      if(window.innerWidth < 1024) { /* يمكن إضافة كود هنا لإغلاق القائمة */ }
+    }
+
+    // 4. تشغيل الآية وجلب التفسير
+    async function playAyah(verseKey, sName, aNum) {
+      playerBar.classList.remove('translate-y-20');
+      document.getElementById('now-playing-title').textContent = `${sName} - آية رقم ${aNum}`;
+      
+      // الصوت
+      const rId = reciterSelect.value;
+      const resAudio = await fetch(`https://api.quran.com/api/v4/recitations/${rId}/by_ayah/${verseKey}`);
+      const dataAudio = await resAudio.json();
+      audioEngine.src = "https://verses.quran.com/" + dataAudio.audio_files[0].url;
+      audioEngine.play();
+      document.getElementById('play-icon').textContent = '⏸️';
+
+      // التفسير
+      const tafsirContent = document.getElementById('tafsir-content');
+      document.getElementById('tafsir-panel').classList.remove('hidden');
+      tafsirContent.textContent = "جاري جلب التفسير...";
+      
+      try {
+        const resTafsir = await fetch(`https://api.quran.com/api/v4/tafsirs/16/by_ayah/${verseKey}`);
+        const dataTafsir = await resTafsir.json();
+        tafsirContent.textContent = dataTafsir.tafsir.text;
+      } catch (e) {
+        tafsirContent.textContent = "عذراً، لم يتم العثور على التفسير لهذه الآية.";
+      }
+    }
+
+    // 5. التحكم في الصوت
+    document.getElementById('play-pause').onclick = () => {
+      if (audioEngine.paused) {
+        audioEngine.play();
+        document.getElementById('play-icon').textContent = '⏸️';
+      } else {
+        audioEngine.pause();
+        document.getElementById('play-icon').textContent = '▶️';
+      }
+    };
+
+    audioEngine.ontimeupdate = () => {
+      const prog = (audioEngine.currentTime / audioEngine.duration) * 100;
+      document.getElementById('audio-progress').style.width = prog + "%";
+      
+      // تحديث الوقت
+      let mins = Math.floor(audioEngine.currentTime / 60);
+      let secs = Math.floor(audioEngine.currentTime % 60);
+      document.getElementById('time-current').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    // تبديل الثيم
+    document.getElementById('theme-toggle').onclick = () => {
+      document.documentElement.classList.toggle('dark');
+    };
+
+    startApp();
+  </script>
+</body>
+</html>
