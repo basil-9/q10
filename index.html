@@ -1,283 +1,255 @@
-import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Loader2 } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>مصحف أم القرى - الإصدار الاحترافي</title>
 
-// Popular reciters with their API identifiers
-export const RECITERS = [
-  { id: 'ar.alafasy', name: 'مشاري العفاسي', englishName: 'Mishary Alafasy' },
-  { id: 'ar.bandarbalila', name: 'بندر بليلة', englishName: 'Bandar Baleela' },
-  { id: 'ar.abdullahaljuhany', name: 'عبدالله الجهني', englishName: 'Abdullah Al-Juhani' },
-  { id: 'ar.alwaleedalshamsan', name: 'الوليد الشمسان', englishName: 'Al-Waleed Al-Shamsan' },
-  { id: 'ar.abdulbasitmurattal', name: 'عبد الباسط عبد الصمد', englishName: 'Abdul Basit (Murattal)' },
-  { id: 'ar.abdurrahmaansudais', name: 'عبد الرحمن السديس', englishName: 'Abdurrahman As-Sudais' },
-  { id: 'ar.ahmedajamy', name: 'أحمد العجمي', englishName: 'Ahmed Al-Ajamy' },
-  { id: 'ar.maaborimoussa', name: 'ماهر المعيقلي', englishName: 'Maher Al Muaiqly' },
-  { id: 'ar.minaborimoussa', name: 'محمد المنشاوي', englishName: 'Mohamed Siddiq Al-Minshawi' },
-];
-
-interface AudioPlayerProps {
-  surahId: number;
-  totalVerses: number;
-  currentVerse: number;
-  onVerseChange: (verse: number) => void;
-}
-
-const AudioPlayer = ({ surahId, totalVerses, currentVerse, onVerseChange }: AudioPlayerProps) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [reciter, setReciter] = useState('ar.alafasy');
-  const [volume, setVolume] = useState(80);
-  const [isMuted, setIsMuted] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Calculate the global ayah number for the CDN
-  const getGlobalAyahNumber = (surahNum: number, verseNum: number): number => {
-    // Ayah numbers before each surah (cumulative)
-    const ayahsBefore: Record<number, number> = {
-      1: 0, 2: 7, 3: 293, 4: 493, 5: 669, 6: 789, 7: 954, 8: 1160, 9: 1235, 10: 1364,
-      11: 1473, 12: 1596, 13: 1707, 14: 1750, 15: 1802, 16: 1901, 17: 2029, 18: 2140,
-      19: 2250, 20: 2348, 21: 2483, 22: 2595, 23: 2673, 24: 2791, 25: 2855, 26: 2932,
-      27: 3159, 28: 3252, 29: 3340, 30: 3409, 31: 3469, 32: 3503, 33: 3533, 34: 3606,
-      35: 3660, 36: 3705, 37: 3788, 38: 3970, 39: 4058, 40: 4133, 41: 4218, 42: 4272,
-      43: 4325, 44: 4414, 45: 4473, 46: 4510, 47: 4545, 48: 4583, 49: 4612, 50: 4630,
-      51: 4675, 52: 4735, 53: 4784, 54: 4846, 55: 4901, 56: 4979, 57: 5075, 58: 5104,
-      59: 5126, 60: 5150, 61: 5163, 62: 5177, 63: 5188, 64: 5199, 65: 5217, 66: 5229,
-      67: 5241, 68: 5271, 69: 5323, 70: 5375, 71: 5419, 72: 5447, 73: 5475, 74: 5495,
-      75: 5551, 76: 5591, 77: 5622, 78: 5672, 79: 5712, 80: 5758, 81: 5800, 82: 5829,
-      83: 5848, 84: 5884, 85: 5909, 86: 5931, 87: 5948, 88: 5967, 89: 5993, 90: 6023,
-      91: 6043, 92: 6058, 93: 6079, 94: 6090, 95: 6098, 96: 6106, 97: 6125, 98: 6130,
-      99: 6138, 100: 6146, 101: 6157, 102: 6168, 103: 6176, 104: 6179, 105: 6188,
-      106: 6193, 107: 6197, 108: 6204, 109: 6207, 110: 6213, 111: 6216, 112: 6221,
-      113: 6225, 114: 6230
-    };
-    return (ayahsBefore[surahNum] || 0) + verseNum;
-  };
-
-  const getAudioUrl = (surahNum: number, verseNum: number, reciterId: string): string => {
-    const globalAyah = getGlobalAyahNumber(surahNum, verseNum);
-    return `https://cdn.islamic.network/quran/audio/128/${reciterId}/${globalAyah}.mp3`;
-  };
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume / 100;
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#d4af37',
+            darkBg: '#121212',
+            darkCard: '#1e1e1e'
+          }
+        }
+      }
     }
-  }, [volume, isMuted]);
+  </script>
 
-  useEffect(() => {
-    // Load new audio when verse or reciter changes
-    if (audioRef.current && isPlaying) {
-      loadAndPlayAudio();
-    }
-  }, [currentVerse, reciter]);
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
 
-  const loadAndPlayAudio = async () => {
-    if (!audioRef.current) return;
+  <style>
+    :root { --gold: #d4af37; }
+    body { font-family: 'Tajawal', sans-serif; transition: all 0.3s ease; }
+    .quran-font { font-family: 'Scheherazade New', serif; line-height: 2.2; }
     
-    setIsLoading(true);
-    const audioUrl = getAudioUrl(surahId, currentVerse, reciter);
-    audioRef.current.src = audioUrl;
+    /* مخصصات السكرول بار */
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
     
-    try {
-      await audioRef.current.load();
-      await audioRef.current.play();
-      setIsPlaying(true);
-    } catch (error) {
-      console.error('Error playing audio:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    /* حركات وتأثيرات */
+    .surah-card:hover { transform: translateY(-2px); transition: all 0.2s; }
+    .ayah-highlight:hover { background: rgba(212, 175, 55, 0.05); }
+    .dark .ayah-highlight:hover { background: rgba(212, 175, 55, 0.1); }
+  </style>
+</head>
+<body class="bg-[#f8f9fa] dark:bg-darkBg text-slate-800 dark:text-gray-200">
 
-  const togglePlay = async () => {
-    if (!audioRef.current) return;
-
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      await loadAndPlayAudio();
-    }
-  };
-
-  const handleAudioEnded = () => {
-    // Auto-play next verse
-    if (currentVerse < totalVerses) {
-      onVerseChange(currentVerse + 1);
-    } else {
-      setIsPlaying(false);
-    }
-  };
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setProgress(audioRef.current.currentTime);
-      setDuration(audioRef.current.duration || 0);
-    }
-  };
-
-  const handleSeek = (value: number[]) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = value[0];
-      setProgress(value[0]);
-    }
-  };
-
-  const goToPrevVerse = () => {
-    if (currentVerse > 1) {
-      onVerseChange(currentVerse - 1);
-    }
-  };
-
-  const goToNextVerse = () => {
-    if (currentVerse < totalVerses) {
-      onVerseChange(currentVerse + 1);
-    }
-  };
-
-  const formatTime = (time: number): string => {
-    if (!time || isNaN(time)) return '0:00';
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border shadow-xl">
-      <audio
-        ref={audioRef}
-        onEnded={handleAudioEnded}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleTimeUpdate}
-      />
-      
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex flex-col gap-3">
-          {/* Progress bar */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground w-10 text-left">
-              {formatTime(progress)}
-            </span>
-            <Slider
-              value={[progress]}
-              max={duration || 100}
-              step={0.1}
-              onValueChange={handleSeek}
-              className="flex-1"
-            />
-            <span className="text-xs text-muted-foreground w-10 text-right">
-              {formatTime(duration)}
-            </span>
-          </div>
-
-          {/* Controls */}
-          <div className="flex items-center justify-between gap-4">
-            {/* Reciter selector */}
-            <div className="hidden sm:block w-48">
-              <Select value={reciter} onValueChange={setReciter}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {RECITERS.map((r) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      <span className="font-amiri">{r.name}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Playback controls */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={goToNextVerse}
-                disabled={currentVerse >= totalVerses}
-                className="p-2 rounded-full hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                title="الآية التالية"
-              >
-                <SkipForward className="w-5 h-5 text-foreground" />
-              </button>
-
-              <button
-                onClick={togglePlay}
-                disabled={isLoading}
-                className="w-12 h-12 rounded-full gradient-gold flex items-center justify-center shadow-lg hover:opacity-90 transition-opacity disabled:opacity-70"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-6 h-6 text-foreground animate-spin" />
-                ) : isPlaying ? (
-                  <Pause className="w-6 h-6 text-foreground" />
-                ) : (
-                  <Play className="w-6 h-6 text-foreground mr-[-2px]" />
-                )}
-              </button>
-
-              <button
-                onClick={goToPrevVerse}
-                disabled={currentVerse <= 1}
-                className="p-2 rounded-full hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                title="الآية السابقة"
-              >
-                <SkipBack className="w-5 h-5 text-foreground" />
-              </button>
-            </div>
-
-            {/* Volume control & verse info */}
-            <div className="flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-2">
-                <button
-                  onClick={() => setIsMuted(!isMuted)}
-                  className="p-2 rounded-full hover:bg-secondary transition-colors"
-                >
-                  {isMuted || volume === 0 ? (
-                    <VolumeX className="w-4 h-4 text-muted-foreground" />
-                  ) : (
-                    <Volume2 className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </button>
-                <Slider
-                  value={[isMuted ? 0 : volume]}
-                  max={100}
-                  step={1}
-                  onValueChange={(v) => {
-                    setVolume(v[0]);
-                    setIsMuted(false);
-                  }}
-                  className="w-20"
-                />
-              </div>
-              
-              <div className="text-sm text-muted-foreground font-amiri whitespace-nowrap" dir="rtl">
-                آية {currentVerse} / {totalVerses}
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile reciter selector */}
-          <div className="sm:hidden">
-            <Select value={reciter} onValueChange={setReciter}>
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {RECITERS.map((r) => (
-                  <SelectItem key={r.id} value={r.id}>
-                    <span className="font-amiri">{r.name}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+  <header class="sticky top-0 z-50 bg-white/70 dark:bg-darkCard/70 backdrop-blur-xl border-b dark:border-zinc-800 shadow-sm px-4 py-3">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-primary rounded-lg shadow-lg shadow-primary/30">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
         </div>
+        <h1 class="text-xl font-bold bg-gradient-to-l from-primary to-amber-600 bg-clip-text text-transparent hidden sm:block">مصحف أم القرى</h1>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-4">
+        <select id="reciter-select" class="bg-gray-100 dark:bg-zinc-800 border-none rounded-full px-4 py-2 text-sm focus:ring-2 ring-primary outline-none cursor-pointer font-medium"></select>
+        <button id="theme-toggle" class="p-2.5 bg-gray-100 dark:bg-zinc-800 rounded-full hover:bg-primary/20 transition-colors">🌓</button>
       </div>
     </div>
-  );
-};
+  </header>
 
-export default AudioPlayer;
+  <div class="flex h-[calc(100vh-73px)] max-w-[1600px] mx-auto overflow-hidden">
+    
+    <aside class="w-80 border-l dark:border-zinc-800 bg-white dark:bg-darkCard hidden lg:flex flex-col">
+      <div class="p-4 border-b dark:border-zinc-800">
+        <div class="relative">
+          <input id="surah-search" type="text" placeholder="ابحث عن سورة..." class="w-full bg-gray-50 dark:bg-zinc-900 border-none rounded-xl py-2.5 pr-10 pl-4 text-sm focus:ring-1 ring-primary outline-none">
+          <span class="absolute right-3 top-3 text-gray-400">🔍</span>
+        </div>
+      </div>
+      <div id="surah-list" class="flex-1 overflow-y-auto custom-scroll p-2 space-y-1">
+        </div>
+    </aside>
 
+    <main class="flex-1 overflow-y-auto custom-scroll bg-[#fcfbf7] dark:bg-darkBg p-4 sm:p-8 relative">
+      <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-10 space-y-2">
+          <span id="surah-info" class="text-primary font-bold tracking-widest text-sm uppercase">جاري التحميل...</span>
+          <h2 id="current-surah-name" class="text-5xl font-bold dark:text-white quran-font">الفاتحة</h2>
+          <div class="flex justify-center items-center gap-4 py-4">
+             <div class="h-[1px] w-20 bg-primary/30"></div>
+             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Bismillah.svg/1200px-Bismillah.svg.png" class="h-12 dark:invert opacity-80" alt="بسملة">
+             <div class="h-[1px] w-20 bg-primary/30"></div>
+          </div>
+        </div>
 
+        <div id="ayahs-container" class="bg-white dark:bg-darkCard p-8 sm:p-12 rounded-[2rem] shadow-xl shadow-black/5 border border-amber-50 dark:border-zinc-800 text-right leading-loose">
+          </div>
+
+        <div id="tafsir-panel" class="mt-8 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-zinc-900 dark:to-zinc-800 p-6 rounded-3xl border-r-4 border-primary hidden shadow-lg animate-fade-in">
+          <div class="flex items-center gap-2 mb-3 text-primary">
+            <span class="text-xl">📖</span>
+            <h3 class="font-bold">التفسير الميسر</h3>
+          </div>
+          <p id="tafsir-content" class="text-lg leading-relaxed text-slate-700 dark:text-gray-300"></p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="player-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-3xl bg-white/80 dark:bg-darkCard/80 backdrop-blur-2xl border border-white/20 dark:border-zinc-700 shadow-2xl rounded-[2rem] p-4 flex items-center gap-4 z-50 transform translate-y-20 transition-transform duration-500">
+    <button id="play-pause" class="w-12 h-12 flex items-center justify-center bg-primary text-white rounded-full hover:scale-105 transition shadow-lg shadow-primary/40">
+      <span id="play-icon">▶️</span>
+    </button>
+    
+    <div class="flex-1">
+      <div id="now-playing-title" class="text-xs font-bold text-primary mb-1 truncate">اختر آية للاستماع</div>
+      <div class="relative w-full h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+        <div id="audio-progress" class="absolute top-0 right-0 h-full bg-primary w-0 transition-all duration-300"></div>
+      </div>
+    </div>
+
+    <div class="text-[10px] font-mono opacity-50 hidden sm:block">
+      <span id="time-current">00:00</span>
+    </div>
+
+    <audio id="audio-engine" class="hidden"></audio>
+  </div>
+
+  <script>
+    // القراء المطلوبين مع معرفاتهم من API
+    const reciters = [
+      { id: 3, name: "عبدالرحمن السديس" },
+      { id: 8, name: "بندر بليلة" },
+      { id: 10, name: "عبدالله الجهني" },
+      { id: 6, name: "ماهر المعيقلي" },
+      { id: 11, name: "ياسر الدوسري" },
+      { id: 12, name: "سعود الشريم" },
+      { id: 7, name: "مشاري العفاسي" },
+      { id: 1, name: "محمود خليل الحصري" }
+    ];
+
+    let allChapters = [];
+    const surahList = document.getElementById('surah-list');
+    const ayahsContainer = document.getElementById('ayahs-container');
+    const reciterSelect = document.getElementById('reciter-select');
+    const audioEngine = document.getElementById('audio-engine');
+    const playerBar = document.getElementById('player-bar');
+
+    // 1. تشغيل التطبيق
+    async function startApp() {
+      // تعبئة القراء
+      reciterSelect.innerHTML = reciters.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+      
+      // جلب السور
+      const res = await fetch('https://api.quran.com/api/v4/chapters?language=ar');
+      const data = await res.json();
+      allChapters = data.chapters;
+      renderSurahList(allChapters);
+      
+      // تحميل الفاتحة افتراضياً
+      loadSurah(1, "سورة الفاتحة");
+
+      // البحث
+      document.getElementById('surah-search').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = allChapters.filter(c => c.name_arabic.includes(term) || c.id == term);
+        renderSurahList(filtered);
+      });
+    }
+
+    // 2. عرض قائمة السور
+    function renderSurahList(chapters) {
+      surahList.innerHTML = chapters.map(s => `
+        <div onclick="loadSurah(${s.id}, '${s.name_arabic}')" class="surah-card p-3 rounded-xl cursor-pointer hover:bg-amber-50 dark:hover:bg-zinc-800 group transition-all border border-transparent hover:border-primary/20">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-zinc-900 rounded-lg text-xs font-bold group-hover:bg-primary group-hover:text-white transition-colors">${s.id}</span>
+              <span class="font-bold text-sm">${s.name_arabic}</span>
+            </div>
+            <span class="text-[10px] opacity-40 uppercase">${s.revelation_place === 'makkah' ? 'مكية' : 'مدنية'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 3. تحميل السورة
+    async function loadSurah(id, name) {
+      document.getElementById('current-surah-name').textContent = name;
+      document.getElementById('surah-info').textContent = `سورة رقم ${id}`;
+      ayahsContainer.innerHTML = '<div class="text-center py-20 animate-pulse text-primary italic">جاري جلب كلام الله...</div>';
+      document.getElementById('tafsir-panel').classList.add('hidden');
+
+      const res = await fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${id}`);
+      const data = await res.json();
+      
+      ayahsContainer.innerHTML = '';
+      data.verses.forEach((v, idx) => {
+        const ayahSpan = document.createElement('span');
+        ayahSpan.className = "ayah-highlight quran-font text-3xl md:text-4xl inline p-1 rounded-lg cursor-pointer transition-all duration-300 select-none";
+        ayahSpan.innerHTML = `${v.text_uthmani} <span class="text-primary font-sans text-xl mx-1 inline-flex items-center justify-center w-10 h-10 border border-primary/20 rounded-full">(${idx + 1})</span> `;
+        ayahSpan.onclick = () => playAyah(v.verse_key, name, idx + 1);
+        ayahsContainer.appendChild(ayahSpan);
+      });
+      
+      // غلق القائمة في الموبايل عند الاختيار
+      if(window.innerWidth < 1024) { /* يمكن إضافة كود هنا لإغلاق القائمة */ }
+    }
+
+    // 4. تشغيل الآية وجلب التفسير
+    async function playAyah(verseKey, sName, aNum) {
+      playerBar.classList.remove('translate-y-20');
+      document.getElementById('now-playing-title').textContent = `${sName} - آية رقم ${aNum}`;
+      
+      // الصوت
+      const rId = reciterSelect.value;
+      const resAudio = await fetch(`https://api.quran.com/api/v4/recitations/${rId}/by_ayah/${verseKey}`);
+      const dataAudio = await resAudio.json();
+      audioEngine.src = "https://verses.quran.com/" + dataAudio.audio_files[0].url;
+      audioEngine.play();
+      document.getElementById('play-icon').textContent = '⏸️';
+
+      // التفسير
+      const tafsirContent = document.getElementById('tafsir-content');
+      document.getElementById('tafsir-panel').classList.remove('hidden');
+      tafsirContent.textContent = "جاري جلب التفسير...";
+      
+      try {
+        const resTafsir = await fetch(`https://api.quran.com/api/v4/tafsirs/16/by_ayah/${verseKey}`);
+        const dataTafsir = await resTafsir.json();
+        tafsirContent.textContent = dataTafsir.tafsir.text;
+      } catch (e) {
+        tafsirContent.textContent = "عذراً، لم يتم العثور على التفسير لهذه الآية.";
+      }
+    }
+
+    // 5. التحكم في الصوت
+    document.getElementById('play-pause').onclick = () => {
+      if (audioEngine.paused) {
+        audioEngine.play();
+        document.getElementById('play-icon').textContent = '⏸️';
+      } else {
+        audioEngine.pause();
+        document.getElementById('play-icon').textContent = '▶️';
+      }
+    };
+
+    audioEngine.ontimeupdate = () => {
+      const prog = (audioEngine.currentTime / audioEngine.duration) * 100;
+      document.getElementById('audio-progress').style.width = prog + "%";
+      
+      // تحديث الوقت
+      let mins = Math.floor(audioEngine.currentTime / 60);
+      let secs = Math.floor(audioEngine.currentTime % 60);
+      document.getElementById('time-current').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    // تبديل الثيم
+    document.getElementById('theme-toggle').onclick = () => {
+      document.documentElement.classList.toggle('dark');
+    };
+
+    startApp();
+  </script>
+</body>
+</html>
