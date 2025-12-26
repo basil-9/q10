@@ -1,1 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>مصحف أم القرى - إصدار أئمة الحرمين</title>
 
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Amiri', serif; transition: all 0.3s ease; }
+    .quran-font { font-family: 'Scheherazade New', serif; line-height: 1.8; }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
+    .gold-text { color: #d4af37; }
+    .gold-bg { background-color: #d4af37; }
+    
+    .dark body { background-color: #121212; color: #e2e8f0; }
+    .dark .bg-white { background-color: #1e1e1e; color: #e2e8f0; }
+    .dark .border-amber-50 { border-color: #333; }
+  </style>
+</head>
+<body class="bg-[#fcfbf7] text-slate-900">
+
+  <header class="sticky top-0 z-50 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b dark:border-zinc-700 p-4 flex flex-wrap justify-between items-center gap-4 shadow-sm">
+    <div class="flex items-center gap-3">
+      <div class="w-2 h-8 gold-bg rounded-full"></div>
+      <h1 class="text-xl font-bold gold-text">مصحف أم القرى</h1>
+    </div>
+
+    <div class="flex items-center gap-3 flex-1 justify-end">
+      <div class="flex items-center gap-2 bg-slate-100 dark:bg-zinc-800 px-3 py-1.5 rounded-full">
+        <span class="text-xs text-slate-500">القارئ:</span>
+        <select id="reciter" class="bg-transparent text-sm focus:outline-none font-sans"></select>
+      </div>
+      <button id="dark-mode-toggle" class="p-2 rounded-full border dark:border-zinc-600 hover:bg-amber-50 dark:hover:bg-zinc-800">🌓</button>
+    </div>
+  </header>
+
+  <div class="flex h-[calc(100vh-85px)]">
+    <aside class="w-80 border-l dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-y-auto custom-scrollbar hidden lg:block">
+      <div id="chapters-list" class="divide-y dark:divide-zinc-800"></div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8">
+      <div class="max-w-4xl mx-auto">
+        <div id="surah-header" class="text-center mb-8">
+          <h2 id="surah-title" class="text-4xl font-bold gold-text mb-2">سورة الفاتحة</h2>
+          <p class="text-slate-400 text-sm">اضغط على الآية للاستماع والتفسير</p>
+        </div>
+
+        <div id="quran-container" class="bg-white dark:bg-zinc-800 p-6 md:p-12 rounded-3xl shadow-xl border border-amber-50 dark:border-zinc-700 text-right space-y-4">
+          </div>
+
+        <div id="tafsir-box" class="mt-8 p-6 bg-amber-50 dark:bg-zinc-900 rounded-2xl border-r-8 border-amber-500 hidden transition-all">
+          <h3 class="font-bold text-amber-800 dark:text-amber-500 mb-2 underline">التفسير الميسر:</h3>
+          <p id="tafsir-text" class="text-lg leading-relaxed text-slate-700 dark:text-slate-300"></p>
+        </div>
+      </div>
+      <div class="h-24"></div> </main>
+  </div>
+
+  <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl bg-white/95 dark:bg-zinc-900/95 border border-amber-100 dark:border-zinc-700 shadow-2xl rounded-2xl p-4 flex items-center gap-4 z-50">
+    <button id="play-btn" class="text-2xl hover:scale-110 transition">▶️</button>
+    <div class="flex-1">
+      <div id="track-info" class="text-xs mb-1 text-slate-500 dark:text-slate-400 font-sans">اختر آية للبدء</div>
+      <div class="h-1.5 bg-slate-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+        <div id="progress-bar" class="h-full gold-bg w-0 transition-all"></div>
+      </div>
+    </div>
+    <audio id="audio-player" class="hidden"></audio>
+  </div>
+
+  <script>
+    const reciterSelect = document.getElementById('reciter');
+    const chaptersList = document.getElementById('chapters-list');
+    const quranContainer = document.getElementById('quran-container');
+    const audioPlayer = document.getElementById('audio-player');
+    const tafsirBox = document.getElementById('tafsir-box');
+    const tafsirText = document.getElementById('tafsir-text');
+
+    // قائمة أئمة الحرمين وقراء مشهورين
+    const reciters = [
+      { id: 7, name: "مشاري العفاسي" },
+      { id: 3, name: "عبدالرحمن السديس (الحرم)" },
+      { id: 12, name: "سعود الشريم (الحرم)" },
+      { id: 6, name: "ماهر المعيقلي (الحرم)" },
+      { id: 11, name: "ياسر الدوسري (الحرم)" },
+      { id: 8, name: "بندر بليلة (الحرم)" },
+      { id: 10, name: "عبدالله الجهني (الحرم)" },
+      { id: 2, name: "عبدالباسط عبدالصمد" },
+      { id: 1, name: "محمود خليل الحصري" }
+    ];
+
+    function init() {
+      // تعبئة القراء
+      reciterSelect.innerHTML = reciters.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+      
+      // تبديل الوضع الليلي
+      document.getElementById('dark-mode-toggle').onclick = () => document.documentElement.classList.toggle('dark');
+
+      loadChapters();
+      loadSurah(1, "سورة الفاتحة");
+    }
+
+    async function loadChapters() {
+      const res = await fetch('https://api.quran.com/api/v4/chapters?language=ar');
+      const data = await res.json();
+      chaptersList.innerHTML = data.chapters.map(s => `
+        <div onclick="loadSurah(${s.id}, '${s.name_arabic}')" class="p-4 cursor-pointer hover:bg-amber-50 dark:hover:bg-zinc-800 transition group">
+          <div class="flex justify-between items-center">
+            <span class="font-bold group-hover:text-amber-600">${s.id}. ${s.name_arabic}</span>
+            <span class="text-xs opacity-50 font-sans">${s.verses_count} آية</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadSurah(id, name) {
+      document.getElementById('surah-title').textContent = name;
+      quranContainer.innerHTML = '<p class="text-center opacity-50 italic">جاري تحميل الآيات...</p>';
+      tafsirBox.classList.add('hidden');
+
+      const res = await fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${id}`);
+      const data = await res.json();
+      
+      quranContainer.innerHTML = '';
+      data.verses.forEach((v, idx) => {
+        const span = document.createElement('span');
+        span.className = "quran-font text-3xl md:text-4xl inline-block m-2 p-2 rounded-lg cursor-pointer hover:bg-amber-50 dark:hover:bg-zinc-700 transition";
+        span.innerHTML = `${v.text_uthmani} <span class="text-xl gold-text font-sans">﴿${idx + 1}﴾</span>`;
+        span.onclick = () => playAndExplain(v.verse_key, name, idx + 1);
+        quranContainer.appendChild(span);
+      });
+    }
+
+    async function playAndExplain(verseKey, surahName, verseNum) {
+      // 1. تشغيل صوت القارئ المختار
+      const rId = reciterSelect.value;
+      document.getElementById('track-info').textContent = `جاري التحميل: ${surahName} - آية ${verseNum}`;
+      
+      try {
+        const resAudio = await fetch(`https://api.quran.com/api/v4/recitations/${rId}/by_ayah/${verseKey}`);
+        const dataAudio = await resAudio.json();
+        audioPlayer.src = "https://verses.quran.com/" + dataAudio.audio_files[0].url;
+        audioPlayer.play();
+        document.getElementById('play-btn').textContent = '⏸️';
+      } catch (e) { console.error("Audio error"); }
+
+      // 2. جلب التفسير
+      tafsirBox.classList.remove('hidden');
+      tafsirText.textContent = "جاري تحميل التفسير الميسر...";
+      try {
+        const resTafsir = await fetch(`https://api.quran.com/api/v4/tafsirs/16/by_ayah/${verseKey}`);
+        const dataTafsir = await resTafsir.json();
+        tafsirText.textContent = dataTafsir.tafsir.text;
+      } catch (e) { tafsirText.textContent = "عذراً، فشل تحميل التفسير."; }
+    }
+
+    // التحكم بالصوت
+    document.getElementById('play-btn').onclick = () => {
+      if(audioPlayer.paused) { audioPlayer.play(); document.getElementById('play-btn').textContent = '⏸️'; }
+      else { audioPlayer.pause(); document.getElementById('play-btn').textContent = '▶️'; }
+    };
+
+    audioPlayer.ontimeupdate = () => {
+      const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+      document.getElementById('progress-bar').style.width = progress + "%";
+    };
+
+    init();
+  </script>
+</body>
+</html>
