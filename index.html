@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مخطط رمضان الاحترافي | Ramadan Pro</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,23 +13,25 @@
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
         
-        /* تخصيصات خاصة */
+        /* تأثيرات الزجاج */
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .task-input { background: transparent; border: none; border-bottom: 1px solid #334155; color: #e2e8f0; width: 100%; padding: 4px 0; outline: none; transition: 0.3s; }
-        .task-input:focus { border-bottom-color: var(--theme-color); }
         
-        /* Checkbox Styling */
+        /* حقول الإدخال */
+        .task-input { background: transparent; border: none; border-bottom: 1px solid #334155; color: #e2e8f0; width: 100%; padding: 4px 0; outline: none; transition: 0.3s; }
+        .task-input:focus { border-bottom-color: var(--theme-color, #fbbf24); }
+        
+        /* تخصيص Checkbox */
         .custom-checkbox input:checked + div { background-color: #10b981; border-color: #10b981; }
 
-        /* Grade Colors */
+        /* ألوان التقييم */
         .grade-A { border-color: #4ade80 !important; box-shadow: 0 0 8px rgba(74, 222, 128, 0.2); }
         .grade-B { border-color: #60a5fa !important; }
         .grade-C { border-color: #facc15 !important; }
         .grade-D { border-color: #fb923c !important; }
         .grade-F { border-color: #f87171 !important; }
 
-        /* Modal Transitions */
-        .modal { opacity: 0; pointer-events: none; transition: 0.3s; }
+        /* النوافذ المنبثقة (Modals) */
+        .modal { opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; }
         .modal.active { opacity: 1; pointer-events: all; }
         .modal-content { transform: scale(0.9); transition: 0.3s; }
         .modal.active .modal-content { transform: scale(1); }
@@ -40,7 +43,7 @@
         <div class="container mx-auto px-4 py-3">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
                 <div class="flex items-center gap-3">
-                    <div id="logo-icon" class="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-700 text-white text-xl shadow-lg">
+                    <div id="logo-icon" class="w-10 h-10 rounded-lg flex items-center justify-center bg-yellow-500 text-white text-xl shadow-lg transition-colors duration-300">
                         <i class="fas fa-moon"></i>
                     </div>
                     <div>
@@ -50,33 +53,38 @@
                 </div>
 
                 <div class="flex flex-wrap gap-2 justify-center">
-                    <button onclick="showHadith()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-xs transition border border-gray-600">
-                        <i class="fas fa-lightbulb text-yellow-400 ml-1"></i> حديث اليوم
+                    <button onclick="showHadith()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-xs transition border border-gray-600 flex items-center gap-1">
+                        <i class="fas fa-lightbulb text-yellow-400"></i> حديث
                     </button>
-                    <button onclick="showChart()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-xs transition border border-gray-600">
-                        <i class="fas fa-chart-line text-blue-400 ml-1"></i> التحليل
+                    <button onclick="showChart()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-xs transition border border-gray-600 flex items-center gap-1">
+                        <i class="fas fa-chart-line text-blue-400"></i> تحليل
                     </button>
+                    
                     <div class="relative group">
-                        <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-xs transition border border-gray-600">
-                            <i class="fas fa-palette text-pink-400 ml-1"></i> الثيم
+                        <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-xs transition border border-gray-600 flex items-center gap-1">
+                            <i class="fas fa-palette text-pink-400"></i> ألوان
                         </button>
                         <div class="absolute left-0 mt-2 w-32 bg-[#1e293b] border border-gray-600 rounded shadow-xl hidden group-hover:block p-2 z-50">
                             <div class="grid grid-cols-5 gap-2">
-                                <div onclick="setTheme('gold')" class="w-5 h-5 rounded-full bg-yellow-500 cursor-pointer hover:scale-110"></div>
-                                <div onclick="setTheme('blue')" class="w-5 h-5 rounded-full bg-blue-500 cursor-pointer hover:scale-110"></div>
-                                <div onclick="setTheme('green')" class="w-5 h-5 rounded-full bg-emerald-500 cursor-pointer hover:scale-110"></div>
-                                <div onclick="setTheme('purple')" class="w-5 h-5 rounded-full bg-purple-500 cursor-pointer hover:scale-110"></div>
-                                <div onclick="setTheme('rose')" class="w-5 h-5 rounded-full bg-rose-500 cursor-pointer hover:scale-110"></div>
+                                <div onclick="setTheme('gold')" class="w-5 h-5 rounded-full bg-yellow-500 cursor-pointer hover:scale-110 border border-gray-500" title="ذهبي"></div>
+                                <div onclick="setTheme('blue')" class="w-5 h-5 rounded-full bg-blue-500 cursor-pointer hover:scale-110 border border-gray-500" title="أزرق"></div>
+                                <div onclick="setTheme('green')" class="w-5 h-5 rounded-full bg-emerald-500 cursor-pointer hover:scale-110 border border-gray-500" title="أخضر"></div>
+                                <div onclick="setTheme('purple')" class="w-5 h-5 rounded-full bg-purple-500 cursor-pointer hover:scale-110 border border-gray-500" title="بنفسجي"></div>
+                                <div onclick="setTheme('rose')" class="w-5 h-5 rounded-full bg-rose-500 cursor-pointer hover:scale-110 border border-gray-500" title="وردي"></div>
                             </div>
                         </div>
                     </div>
-                    <button onclick="exportData()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-xs transition border border-gray-600" title="حفظ نسخة">
+
+                    <button onclick="exportData()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-xs transition border border-gray-600" title="حفظ نسخة احتياطية">
                         <i class="fas fa-download"></i>
                     </button>
                     <label class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-xs transition border border-gray-600 cursor-pointer" title="استعادة نسخة">
                         <i class="fas fa-upload"></i>
                         <input type="file" onchange="importData(this)" class="hidden">
                     </label>
+                    <button onclick="resetData()" class="bg-red-900/30 hover:bg-red-900/50 text-red-400 px-3 py-1.5 rounded text-xs transition border border-red-900/50" title="تصفير">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             </div>
 
@@ -111,7 +119,7 @@
             </div>
     </main>
 
-    <div id="note-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div id="note-modal" class="modal fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
         <div class="modal-content bg-[#1e293b] w-11/12 max-w-lg rounded-xl shadow-2xl border border-gray-600 p-6 relative">
             <button onclick="closeModal('note-modal')" class="absolute top-4 left-4 text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
             <h3 class="text-xl font-bold text-white mb-4"><i class="fas fa-pen-nib text-yellow-500 ml-2"></i> تدوين خواطر اليوم <span id="note-day-num"></span></h3>
@@ -122,7 +130,7 @@
         </div>
     </div>
 
-    <div id="chart-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div id="chart-modal" class="modal fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
         <div class="modal-content bg-[#1e293b] w-11/12 max-w-4xl rounded-xl shadow-2xl border border-gray-600 p-6 relative">
             <button onclick="closeModal('chart-modal')" class="absolute top-4 left-4 text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
             <h3 class="text-xl font-bold text-white mb-4">📊 تحليل الأداء البياني</h3>
@@ -132,7 +140,7 @@
         </div>
     </div>
 
-    <div id="hadith-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div id="hadith-modal" class="modal fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
         <div class="modal-content bg-[#1e293b] w-11/12 max-w-md rounded-xl shadow-2xl border border-gray-600 p-8 text-center relative">
             <div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-quote-right text-yellow-500 text-2xl"></i>
@@ -147,11 +155,10 @@
     </footer>
 
     <script>
-        // Constants & Data
-        const RAMADAN_START = new Date('2026-02-18T00:00:00'); // التاريخ المتوقع
+        // إعدادات التاريخ والبيانات
+        const RAMADAN_START = new Date('2026-02-18T00:00:00'); // تاريخ بداية رمضان المتوقع
         const TOTAL_DAYS = 30;
         
-        // Themes Colors
         const THEMES = {
             gold:   { main: '#fbbf24', bg: 'bg-yellow-500', text: 'text-yellow-500' },
             blue:   { main: '#3b82f6', bg: 'bg-blue-500', text: 'text-blue-500' },
@@ -160,7 +167,6 @@
             rose:   { main: '#f43f5e', bg: 'bg-rose-500', text: 'text-rose-500' }
         };
 
-        // Quotes Data
         const QUOTES = [
             "الصيام والقرآن يشفعان للعبد يوم القيامة.",
             "من صام رمضان إيماناً واحتساباً غفر له ما تقدم من ذنبه.",
@@ -179,15 +185,15 @@
         let currentNoteDay = null;
         let chartInstance = null;
 
-        // Initialization
+        // تهيئة التطبيق
         function init() {
-            const stored = localStorage.getItem('ramadanPro_v6');
+            // استخدام مفتاح جديد لضمان تحديث البيانات وعدم ظهور النسخة القديمة
+            const stored = localStorage.getItem('ramadanPro_v6_final');
             if (stored) {
                 appData = JSON.parse(stored);
-                // Handle version migration if needed, else just load
                 if(!appData.theme) appData.theme = 'gold';
             } else {
-                // Create clean data
+                // إنشاء بيانات جديدة
                 for (let i = 1; i <= TOTAL_DAYS; i++) {
                     appData[i] = {
                         prayerGrade: "", // A, B, C, D, F
@@ -204,13 +210,13 @@
                 appData.theme = 'gold';
             }
             
-            setTheme(appData.theme, false); // Apply theme
+            setTheme(appData.theme, false);
             render();
             updateStats();
             startCountdown();
         }
 
-        // Render Cards
+        // رسم البطاقات
         function render() {
             const grid = document.getElementById('days-grid');
             grid.innerHTML = '';
@@ -222,14 +228,13 @@
                 date.setDate(date.getDate() + (i - 1));
                 let dateStr = date.toLocaleDateString('ar-SA', { weekday: 'long', day: 'numeric', month: 'short' });
 
-                // Border Style based on Grade
                 let borderClass = 'border-gray-700';
                 if(day.prayerGrade) borderClass = `grade-${day.prayerGrade} border-2`;
 
-                // Note Indicator
+                // لون أيقونة الملاحظة إذا كان يوجد ملاحظة
                 let noteIconClass = day.note ? themeObj.text : 'text-gray-500';
 
-                // Build Tasks
+                // بناء قائمة المهام
                 let tasksHtml = '';
                 day.tasks.forEach((task, idx) => {
                     let inputHtml = idx === 0 
@@ -257,8 +262,8 @@
                             <div class="text-xs text-gray-400 mt-1">${dateStr}</div>
                         </div>
                         <div class="flex gap-2 items-center">
-                            <button onclick="openNote(${i})" class="${noteIconClass} hover:text-white transition" title="تدوين">
-                                <i class="fas fa-pen"></i>
+                            <button onclick="openNote(${i})" class="${noteIconClass} hover:text-white transition w-8 h-8 rounded-full hover:bg-gray-700 flex items-center justify-center" title="تدوين">
+                                <i class="fas fa-pen text-xs"></i>
                             </button>
                             <select onchange="updateGrade(${i}, this.value)" class="bg-gray-800 border border-gray-600 text-sm rounded px-1 py-1 outline-none cursor-pointer text-center w-12 font-bold focus:border-${currentTheme}-500">
                                 <option value="" ${day.prayerGrade === '' ? 'selected' : ''}>-</option>
@@ -277,7 +282,7 @@
             }
         }
 
-        // Logic Functions
+        // الوظائف المنطقية
         function toggleTask(d, t) {
             appData[d].tasks[t].done = !appData[d].tasks[t].done;
             save(); render(); updateStats();
@@ -291,24 +296,27 @@
             save(); render(); updateStats();
         }
 
-        // Theme Logic
+        // وظائف الثيمات
         function setTheme(colorName, doSave = true) {
             currentTheme = colorName;
             const t = THEMES[colorName];
             
-            // UI Updates
+            // تحديث متغيرات الـ CSS والألوان
             document.documentElement.style.setProperty('--theme-color', t.main);
-            document.getElementById('logo-icon').style.backgroundColor = t.main;
+            const logo = document.getElementById('logo-icon');
+            if(logo) {
+                logo.style.backgroundColor = t.main;
+                logo.style.color = (colorName === 'gold' || colorName === 'green') ? '#fff' : '#fff';
+            }
             
-            // Store
             if(doSave) {
                 appData.theme = colorName;
                 save();
-                render(); // Re-render to update classes
+                render();
             }
         }
 
-        // Stats Logic
+        // وظائف الإحصائيات
         function updateStats() {
             let quran = 0, tasksTotal = 0, tasksDone = 0, prayerPoints = 0, prayerDays = 0;
             const points = {'A':100,'B':85,'C':70,'D':50,'F':20};
@@ -340,7 +348,7 @@
             document.getElementById('task-bar').style.width = `${tPercent}%`;
         }
 
-        // Note Feature
+        // وظائف الملاحظات
         function openNote(day) {
             currentNoteDay = day;
             document.getElementById('note-day-num').innerText = day;
@@ -352,17 +360,15 @@
             appData[currentNoteDay].note = txt;
             save();
             closeModal('note-modal');
-            render(); // update icon color
+            render();
         }
 
-        // Hadith Feature
+        // وظائف الحديث والرسم البياني
         function showHadith() {
             const random = QUOTES[Math.floor(Math.random() * QUOTES.length)];
             document.getElementById('hadith-content').innerText = `"${random}"`;
             document.getElementById('hadith-modal').classList.add('active');
         }
-
-        // Chart Feature
         function showChart() {
             document.getElementById('chart-modal').classList.add('active');
             renderChart();
@@ -370,7 +376,6 @@
         function renderChart() {
             const ctx = document.getElementById('performanceChart').getContext('2d');
             
-            // Prepare Data
             const labels = Array.from({length: TOTAL_DAYS}, (_, i) => i + 1);
             const prayerData = [];
             const taskData = [];
@@ -378,15 +383,12 @@
 
             for(let i=1; i<=TOTAL_DAYS; i++) {
                 prayerData.push(points[appData[i].prayerGrade] || 0);
-                
-                let dTasks = 0;
-                let dDone = 0;
+                let dTasks = 0, dDone = 0;
                 appData[i].tasks.forEach(t => { dTasks++; if(t.done) dDone++; });
                 taskData.push(dTasks ? (dDone/dTasks)*100 : 0);
             }
 
             if(chartInstance) chartInstance.destroy();
-
             const themeColor = THEMES[currentTheme].main;
 
             chartInstance = new Chart(ctx, {
@@ -418,19 +420,17 @@
                         y: { beginAtZero: true, max: 100, grid: { color: '#334155' } },
                         x: { grid: { display: false } }
                     },
-                    plugins: {
-                        legend: { labels: { color: 'white' } }
-                    }
+                    plugins: { legend: { labels: { color: 'white' } } }
                 }
             });
         }
 
-        // Utils
+        // أدوات مساعدة
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function save() { localStorage.setItem('ramadanPro_v6', JSON.stringify(appData)); }
+        function save() { localStorage.setItem('ramadanPro_v6_final', JSON.stringify(appData)); }
         function resetData() { 
-            if(confirm("حذف كل البيانات والبدء من جديد؟")) {
-                localStorage.removeItem('ramadanPro_v6'); 
+            if(confirm("تحذير: سيتم حذف جميع البيانات والبدء من جديد. هل أنت متأكد؟")) {
+                localStorage.removeItem('ramadanPro_v6_final'); 
                 location.reload(); 
             }
         }
@@ -442,7 +442,13 @@
             const file = input.files[0];
             if(!file) return;
             const r = new FileReader();
-            r.onload = (e) => { appData = JSON.parse(e.target.result); save(); location.reload(); };
+            r.onload = (e) => { 
+                try {
+                    appData = JSON.parse(e.target.result); 
+                    save(); 
+                    location.reload(); 
+                } catch(err) { alert('الملف غير صالح'); }
+            };
             r.readAsText(file);
         }
         function startCountdown() {
