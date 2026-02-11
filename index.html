@@ -62,9 +62,6 @@
                 </div>
 
                 <div class="flex flex-wrap gap-2 justify-center w-full md:w-auto">
-                    <button onclick="downloadCalendar()" class="bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 border border-yellow-600/50 px-4 py-2 rounded-lg text-sm transition flex items-center gap-2">
-                        <i class="fas fa-calendar-alt"></i> <span class="hidden sm:inline">تقويم</span>
-                    </button>
                     <button onclick="showHadith()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition border border-gray-600 flex items-center gap-2">
                         <i class="fas fa-lightbulb text-yellow-400"></i> <span class="hidden sm:inline">حديث</span>
                     </button>
@@ -216,10 +213,6 @@
         function showHadith(){ document.getElementById('hadith-content').innerText=`"${QUOTES[Math.floor(Math.random()*QUOTES.length)]}"`; document.getElementById('hadith-modal').classList.add('active'); }
         function closeModal(id){ document.getElementById(id).classList.remove('active'); }
         function startCountdown(){ setInterval(()=>{ const d=RAMADAN_START-new Date(); document.getElementById('countdown').innerText=d<0?"رمضان مبارك!":`باقي ${Math.floor(d/864e5)} يوم`; },1000); }
-        function downloadCalendar(){
-            const ics=`BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:🌙 تذكير مخطط رمضان\nDTSTART:20260218T130000Z\nRRULE:FREQ=DAILY;UNTIL=20260319T130000Z\nDESCRIPTION:راجع مهامك اليومية.\nEND:VEVENT\nEND:VCALENDAR`;
-            const b=new Blob([ics],{type:'text/calendar'}); const l=document.createElement('a'); l.href=URL.createObjectURL(b); l.download='ramadan.ics'; l.click();
-        }
         function showChart(){ document.getElementById('chart-modal').classList.add('active'); const ctx=document.getElementById('performanceChart').getContext('2d'); if(chartInstance)chartInstance.destroy(); chartInstance=new Chart(ctx,{type:'line',data:{labels:Array.from({length:30},(_,i)=>i+1),datasets:[{label:'الصلاة',data:Array.from({length:30},(_,i)=>({'A':100,'B':85,'C':70,'D':50,'F':20}[appData[i+1].prayerGrade]||0)),borderColor:MAIN_COLOR},{label:'المهام',data:Array.from({length:30},(_,i)=>{const t=appData[i+1].tasks; return (t.filter(x=>x.done).length/t.length)*100}),borderColor:'#94a3b8'}]},options:{responsive:true,maintainAspectRatio:false}}); }
         
         init();
