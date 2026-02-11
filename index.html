@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مخطط رمضان | Ramadan Planner</title>
+    <title>مخطط رمضان | الإصدار النهائي</title>
     <meta name="theme-color" content="#1e293b">
     
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -13,13 +13,12 @@
         await OneSignal.init({
           appId: "99d92fb6-6623-45be-a725-fd8c77604daf",
           safari_web_id: "web.onesignal.auto.48d9c6a2-4943-4221-b17b-a4e235bf1c7d",
-          notifyButton: { enable: true },
-          allowLocalhostAsSecureOrigin: true
+          notifyButton: { enable: true }
         });
       });
-      // دالة لطلب الاشتراك يدوياً
+
       function subscribeNow() {
-        OneSignalDeferred.push(function(OneSignal) {
+        window.OneSignalDeferred.push(function(OneSignal) {
           OneSignal.showNativePrompt();
         });
       }
@@ -34,14 +33,13 @@
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .task-input { background: transparent; border: none; border-bottom: 1px solid #334155; color: #e2e8f0; width: 100%; padding: 8px 0; outline: none; font-size: 16px; } 
+        .task-input { background: transparent; border: none; border-bottom: 1px solid #334155; color: #e2e8f0; width: 100%; padding: 4px 0; outline: none; font-size: 15px; } 
         .custom-checkbox input:checked + div { background-color: #10b981; border-color: #10b981; }
-        .grade-A { border-color: #4ade80 !important; }
-        .grade-B { border-color: #60a5fa !important; }
-        .grade-C { border-color: #facc15 !important; }
-        .modal { opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; }
+        .modal { opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); padding: 1rem; }
         .modal.active { opacity: 1; pointer-events: all; }
-        .day-complete { border-color: #fbbf24 !important; }
+        .grade-A { border-color: #4ade80 !important; border-width: 2px; }
+        .grade-B { border-color: #60a5fa !important; border-width: 2px; }
+        .grade-C { border-color: #facc15 !important; border-width: 2px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -49,47 +47,50 @@
     <header class="bg-[#1e293b] border-b border-gray-700 sticky top-0 z-40 shadow-xl">
         <div class="container mx-auto px-4 py-3">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
-                <div class="flex items-center gap-3 w-full md:w-auto justify-center md:justify-start">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-yellow-500 text-white text-xl shadow-lg shrink-0">
-                        <img src="https://cdn-icons-png.flaticon.com/512/2913/2913501.png" class="w-7 h-7 object-contain">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-yellow-500 shadow-lg">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2913/2913501.png" class="w-7 h-7">
                     </div>
-                    <div class="text-center md:text-right">
-                        <h1 class="text-lg md:text-xl font-bold text-white">مخطط رمضان</h1>
+                    <div>
+                        <h1 class="text-lg font-bold text-white">مخطط رمضان</h1>
                         <div id="countdown" class="text-[10px] text-green-400 font-mono">...</div>
                     </div>
                 </div>
 
-                <div class="flex flex-wrap gap-2 justify-center w-full md:w-auto">
-                    <button onclick="subscribeNow()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-600/50 px-3 py-2 rounded-lg text-sm transition flex items-center gap-2">
-                        <i class="fas fa-bell"></i> تفعيل التنبيهات
+                <div class="flex flex-wrap gap-2 justify-center">
+                    <button onclick="subscribeNow()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-600/50 px-3 py-2 rounded-lg text-xs transition">
+                        <i class="fas fa-bell ml-1"></i> تنبيهات
                     </button>
-                    <button onclick="showHadith()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition border border-gray-600">
-                        <i class="fas fa-lightbulb text-yellow-400"></i> حديث
+                    <button onclick="showHadith()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-xs transition border border-gray-600">
+                        <i class="fas fa-lightbulb text-yellow-400 ml-1"></i> حديث
                     </button>
-                    <button onclick="showChart()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition border border-gray-600">
-                        <i class="fas fa-chart-line text-blue-400"></i> تحليل
+                    <button onclick="showChart()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-xs transition border border-gray-600">
+                        <i class="fas fa-chart-line text-blue-400 ml-1"></i> تحليل
                     </button>
-                    <button onclick="exportData()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm border border-gray-600"><i class="fas fa-download"></i></button>
-                    <label class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm border border-gray-600 cursor-pointer">
-                        <i class="fas fa-upload"></i><input type="file" onchange="importData(this)" class="hidden">
+                    <button onclick="exportData()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-xs border border-gray-600">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <label class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-xs border border-gray-600 cursor-pointer">
+                        <i class="fas fa-upload"></i>
+                        <input type="file" onchange="importData(this)" class="hidden">
                     </label>
                 </div>
             </div>
 
             <div class="grid grid-cols-3 gap-2">
                 <div class="glass-panel p-2 rounded-lg relative overflow-hidden text-center">
-                    <span class="text-[10px] text-gray-400">القرآن</span>
-                    <div class="text-sm font-bold text-white mt-1"><span id="quran-stat">0</span>/30</div>
+                    <span class="text-[9px] text-gray-400">القرآن</span>
+                    <div class="text-sm font-bold text-white"><span id="quran-stat">0</span>/30</div>
                     <div id="quran-bar" class="absolute bottom-0 left-0 h-1 bg-yellow-500 transition-all" style="width:0%"></div>
                 </div>
                 <div class="glass-panel p-2 rounded-lg relative overflow-hidden text-center">
-                    <span class="text-[10px] text-gray-400">الصلاة</span>
-                    <div class="text-sm font-bold text-white mt-1"><span id="prayer-stat">0</span>%</div>
+                    <span class="text-[9px] text-gray-400">الصلاة</span>
+                    <div class="text-sm font-bold text-white"><span id="prayer-stat">0</span>%</div>
                     <div id="prayer-bar" class="absolute bottom-0 left-0 h-1 bg-green-500 transition-all" style="width:0%"></div>
                 </div>
                 <div class="glass-panel p-2 rounded-lg relative overflow-hidden text-center">
-                    <span class="text-[10px] text-gray-400">المهام</span>
-                    <div class="text-sm font-bold text-white mt-1"><span id="task-stat">0</span>%</div>
+                    <span class="text-[9px] text-gray-400">المهام</span>
+                    <div class="text-sm font-bold text-white"><span id="task-stat">0</span>%</div>
                     <div id="task-bar" class="absolute bottom-0 left-0 h-1 bg-blue-500 transition-all" style="width:0%"></div>
                 </div>
             </div>
@@ -100,23 +101,34 @@
         <div id="days-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
     </main>
 
-    <div id="note-modal" class="modal fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
-        <div class="modal-content bg-[#1e293b] w-full max-w-lg rounded-xl p-5 relative">
-            <button onclick="closeModal('note-modal')" class="absolute top-4 left-4 text-gray-400"><i class="fas fa-times text-xl"></i></button>
+    <div id="note-modal" class="modal">
+        <div class="bg-[#1e293b] w-full max-w-md rounded-xl p-5 shadow-2xl border border-gray-700">
             <h3 class="text-lg font-bold text-white mb-4">تدوين اليوم <span id="note-day-num"></span></h3>
-            <textarea id="note-text" class="w-full h-40 bg-[#0f172a] border border-gray-600 rounded-lg p-3 text-gray-200 focus:border-yellow-500 outline-none resize-none"></textarea>
-            <div class="mt-4"><button onclick="saveNote()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold w-full">حفظ</button></div>
+            <textarea id="note-text" class="w-full h-40 bg-[#0f172a] border border-gray-600 rounded-lg p-3 text-white outline-none focus:border-yellow-500 resize-none"></textarea>
+            <div class="mt-4 flex gap-2">
+                <button onclick="saveNote()" class="flex-grow bg-blue-600 text-white py-3 rounded-lg font-bold">حفظ</button>
+                <button onclick="closeModal('note-modal')" class="px-6 bg-gray-700 text-white rounded-lg">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="hadith-modal" class="modal">
+        <div class="bg-[#1e293b] w-full max-w-sm rounded-xl p-6 text-center border border-gray-700">
+            <i class="fas fa-quote-right text-yellow-500 text-2xl mb-4"></i>
+            <p id="hadith-content" class="text-white leading-relaxed mb-6"></p>
+            <button onclick="closeModal('hadith-modal')" class="w-full bg-gray-700 text-white py-3 rounded-lg">إغلاق</button>
         </div>
     </div>
 
     <script>
         const RAMADAN_START = new Date('2026-02-18T00:00:00'); 
         const TOTAL_DAYS = 30;
+        const QUOTES = ["الصيام والقرآن يشفعان للعبد.", "من صام رمضان إيماناً واحتساباً غفر له.", "تسحّروا فإن في السحور بركة.", "عمرة في رمضان تعدل حجة."];
         let appData = {};
+        let currentNoteDay = null;
 
         function init() {
-            // ملاحظة: غيرنا اسم التخزين لضمان ثبات البيانات مستقبلاً
-            const stored = localStorage.getItem('ramadan_Planner_V19'); 
+            const stored = localStorage.getItem('ramadan_Planner_V20'); 
             if (stored) { appData = JSON.parse(stored); } 
             else { resetToNew(); }
             render(); updateStats(); startCountdown();
@@ -127,11 +139,10 @@
                 appData[i] = {
                     prayerGrade: "", note: "",
                     tasks: [
-                        { id: 0, text: `📖 قراءة الجزء ${i}`, done: false },
-                        { id: 1, text: "", placeholder: "💧 شرب الماء", done: false },
-                        { id: 2, text: "", placeholder: "💻 جلسة كود...", done: false },
-                        { id: 3, text: "", placeholder: "✨ مهمة إضافية...", done: false },
-                        { id: 4, text: "", placeholder: "✨ مهمة إضافية...", done: false }
+                        { text: `📖 قراءة الجزء ${i}`, done: false },
+                        { text: "", placeholder: "💧 شرب الماء", done: false },
+                        { text: "", placeholder: "💻 مهمة عمل/دراسة", done: false },
+                        { text: "", placeholder: "✨ مهمة إضافية", done: false }
                     ]
                 };
             }
@@ -144,40 +155,55 @@
                 const day = appData[i];
                 let date = new Date(RAMADAN_START);
                 date.setDate(date.getDate() + (i - 1));
-                let dateStr = date.toLocaleDateString('ar-SA', { weekday: 'short', day: 'numeric', month: 'short' });
-                let borderClass = day.prayerGrade ? `grade-${day.prayerGrade} border-2` : 'border-gray-700';
-                
-                let tasksHtml = '';
-                day.tasks.forEach((task, idx) => {
-                    let inputHtml = idx === 0 
-                        ? `<span class="text-sm font-bold ${task.done ? 'line-through opacity-50 text-gray-400' : 'text-yellow-500'}">${task.text}</span>`
-                        : `<input type="text" class="task-input ${task.done ? 'line-through text-gray-500' : ''}" value="${task.text}" placeholder="${task.placeholder}" oninput="updateTaskText(${i}, ${idx}, this.value)">`;
-                    tasksHtml += `<div class="flex items-center gap-3 mb-2"><label class="custom-checkbox shrink-0"><input type="checkbox" class="hidden" onchange="toggleTask(${i}, ${idx})" ${task.done ? 'checked' : ''}><div class="w-5 h-5 border border-gray-500 rounded flex items-center justify-center bg-gray-800"><i class="fas fa-check text-white text-[10px] ${task.done?'':'hidden'}"></i></div></label><div class="flex-grow">${inputHtml}</div></div>`;
-                });
+                let dateStr = date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' });
+                let borderClass = day.prayerGrade ? `grade-${day.prayerGrade}` : 'border-gray-700';
 
-                grid.innerHTML += `<div class="bg-[#1e293b] rounded-xl border shadow-lg p-4 flex flex-col gap-3 ${borderClass}">
-                    <div class="flex justify-between items-center">
-                        <div><span class="text-white font-bold">اليوم ${i}</span><div class="text-[10px] text-gray-400">${dateStr}</div></div>
-                        <div class="flex gap-1">
-                            <button onclick="openNote(${i})" class="${day.note?'text-yellow-500':'text-gray-500'} p-2 bg-gray-800 rounded-full"><i class="fas fa-pen text-xs"></i></button>
-                            <select onchange="updateGrade(${i}, this.value)" class="bg-gray-800 text-xs rounded px-1 border border-gray-600 outline-none">
-                                <option value="" ${day.prayerGrade===''?'selected':''}>-</option>
-                                <option value="A" ${day.prayerGrade==='A'?'selected':''}>A</option>
-                                <option value="B" ${day.prayerGrade==='B'?'selected':''}>B</option>
-                                <option value="C" ${day.prayerGrade==='C'?'selected':''}>C</option>
-                            </select>
-                        </div>
+                let tasksHtml = day.tasks.map((task, idx) => `
+                    <div class="flex items-center gap-3 mb-2">
+                        <label class="shrink-0 cursor-pointer">
+                            <input type="checkbox" class="hidden" onchange="toggleTask(${i}, ${idx})" ${task.done ? 'checked' : ''}>
+                            <div class="w-5 h-5 border border-gray-500 rounded flex items-center justify-center bg-gray-800">
+                                <i class="fas fa-check text-white text-[10px] ${task.done?'':'hidden'}"></i>
+                            </div>
+                        </label>
+                        ${idx === 0 
+                            ? `<span class="text-sm font-bold ${task.done ? 'line-through text-gray-500' : 'text-yellow-500'}">${task.text}</span>`
+                            : `<input type="text" class="task-input ${task.done ? 'line-through text-gray-500' : ''}" value="${task.text}" placeholder="${task.placeholder}" onchange="updateTaskText(${i}, ${idx}, this.value)">`
+                        }
                     </div>
-                    <hr class="border-gray-700">
-                    <div>${tasksHtml}</div>
-                </div>`;
+                `).join('');
+
+                grid.innerHTML += `
+                    <div class="bg-[#1e293b] rounded-xl border p-4 shadow-lg ${borderClass}">
+                        <div class="flex justify-between items-center mb-3">
+                            <div><span class="text-white font-bold">اليوم ${i}</span><span class="text-[10px] text-gray-400 mr-2">${dateStr}</span></div>
+                            <div class="flex gap-2">
+                                <button onclick="openNote(${i})" class="${day.note?'text-yellow-500':'text-gray-500'}"><i class="fas fa-pen text-xs"></i></button>
+                                <select onchange="updateGrade(${i}, this.value)" class="bg-gray-800 text-[10px] rounded border border-gray-600 text-white outline-none">
+                                    <option value="" ${day.prayerGrade===''?'selected':''}>-</option>
+                                    <option value="A" ${day.prayerGrade==='A'?'selected':''}>A</option>
+                                    <option value="B" ${day.prayerGrade==='B'?'selected':''}>B</option>
+                                    <option value="C" ${day.prayerGrade==='C'?'selected':''}>C</option>
+                                </select>
+                            </div>
+                        </div>
+                        <hr class="border-gray-700 mb-3">
+                        ${tasksHtml}
+                    </div>`;
             }
         }
 
         function toggleTask(d, t) { appData[d].tasks[t].done = !appData[d].tasks[t].done; if(appData[d].tasks.every(x=>x.done)) confetti(); save(); render(); updateStats(); }
         function updateTaskText(d, t, txt) { appData[d].tasks[t].text = txt; save(); }
         function updateGrade(d, g) { appData[d].prayerGrade = g; save(); render(); updateStats(); }
-        function save() { localStorage.setItem('ramadan_Planner_V19', JSON.stringify(appData)); }
+        function save() { localStorage.setItem('ramadan_Planner_V20', JSON.stringify(appData)); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openNote(d) { currentNoteDay = d; document.getElementById('note-day-num').innerText = d; document.getElementById('note-text').value = appData[d].note; document.getElementById('note-modal').classList.add('active'); }
+        function saveNote() { appData[currentNoteDay].note = document.getElementById('note-text').value; save(); closeModal('note-modal'); render(); }
+        function showHadith() { document.getElementById('hadith-content').innerText = QUOTES[Math.floor(Math.random()*QUOTES.length)]; document.getElementById('hadith-modal').classList.add('active'); }
+        function exportData() { const s="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(appData)); const a=document.createElement('a'); a.href=s; a.download="ramadan_v20.json"; a.click(); }
+        function importData(input) { const f=input.files[0]; const r=new FileReader(); r.onload=(e)=>{ appData=JSON.parse(e.target.result); save(); location.reload(); }; r.readAsText(f); }
+
         function updateStats() {
             let q=0, tt=0, td=0, pp=0, pd=0;
             const pts={'A':100,'B':85,'C':70};
@@ -193,14 +219,11 @@
             document.getElementById('task-stat').innerText=tt?Math.round((td/tt)*100):0;
             document.getElementById('task-bar').style.width=`${tt?Math.round((td/tt)*100):0}%`;
         }
-        function openNote(d){ currentNoteDay=d; document.getElementById('note-day-num').innerText=d; document.getElementById('note-text').value=appData[d].note; document.getElementById('note-modal').classList.add('active'); }
-        function saveNote(){ appData[currentNoteDay].note=document.getElementById('note-text').value; save(); closeModal('note-modal'); render(); }
-        function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+
         function startCountdown(){ setInterval(()=>{ const d=RAMADAN_START-new Date(); document.getElementById('countdown').innerText=d<0?"رمضان مبارك!":`باقي ${Math.floor(d/864e5)} يوم`; },1000); }
-        function exportData() { const s="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(appData)); const a=document.createElement('a'); a.href=s; a.download="ramadan_backup.json"; a.click(); }
-        function importData(input) { const f=input.files[0]; const r=new FileReader(); r.onload=(e)=>{ appData=JSON.parse(e.target.result); save(); location.reload(); }; r.readAsText(f); }
 
         init();
     </script>
 </body>
 </html>
+    
