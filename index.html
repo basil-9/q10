@@ -3,235 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مخطط رمضان 1447 | Ramadan Planner</title>
+    <title>Ramadan Planner | مخطط رمضان</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .checkbox-wrapper input:checked + div {
+        
+        /* تصميم حقول الكتابة */
+        .task-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #334155;
+            color: #e2e8f0;
+            width: 100%;
+            font-size: 0.9rem;
+            padding: 4px 0;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .task-input:focus { border-bottom-color: #fbbf24; }
+        .task-input::placeholder { color: #475569; font-size: 0.8rem; font-style: italic; }
+
+        /* تخصيص الـ Checkbox */
+        .custom-checkbox input:checked + div {
             background-color: #10b981;
             border-color: #10b981;
         }
-        .checkbox-wrapper input:checked + div i {
-            display: block;
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+        /* ألوان التقييم */
+        select option { background: #1e293b; color: white; }
+        .grade-A { color: #4ade80; border-color: #4ade80; } /* ممتاز - أخضر */
+        .grade-B { color: #60a5fa; border-color: #60a5fa; } /* جيد جدا - أزرق */
+        .grade-C { color: #facc15; border-color: #facc15; } /* جيد - أصفر */
+        .grade-D { color: #fb923c; border-color: #fb923c; } /* مقبول - برتقالي */
+        .grade-F { color: #f87171; border-color: #f87171; } /* راسب - أحمر */
     </style>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        gold: '#fbbf24',
-                        dark: '#1e293b',
-                        darker: '#0f172a'
-                    }
-                }
-            }
-        }
-    </script>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <header class="bg-dark shadow-lg sticky top-0 z-50 border-b border-gray-700">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex justify-between items-center mb-4">
-                <h1 class="text-2xl md:text-3xl font-bold text-gold"><i class="fas fa-moon mr-2"></i> مخطط رمضان 1447</h1>
-                <button onclick="resetData()" class="text-xs text-red-400 hover:text-red-300 border border-red-900 px-2 py-1 rounded">تصفير البيانات</button>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div class="bg-darker p-3 rounded-lg border border-gray-700">
-                    <div class="flex justify-between mb-1">
-                        <span><i class="fas fa-book-quran text-green-400 ml-1"></i> ختمة القرآن</span>
-                        <span id="quran-percent" class="font-bold text-green-400">0%</span>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-2.5">
-                        <div id="quran-bar" class="bg-green-500 h-2.5 rounded-full" style="width: 0%"></div>
-                    </div>
-                </div>
-                
-                <div class="bg-darker p-3 rounded-lg border border-gray-700">
-                    <div class="flex justify-between mb-1">
-                        <span><i class="fas fa-mosque text-blue-400 ml-1"></i> الصلوات والتراويح</span>
-                        <span id="pray-percent" class="font-bold text-blue-400">0%</span>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-2.5">
-                        <div id="pray-bar" class="bg-blue-500 h-2.5 rounded-full" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <div class="bg-darker p-3 rounded-lg border border-gray-700">
-                    <div class="flex justify-between mb-1">
-                        <span><i class="fas fa-laptop-code text-purple-400 ml-1"></i> كود & عمل</span>
-                        <span id="code-percent" class="font-bold text-purple-400">0%</span>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-2.5">
-                        <div id="code-bar" class="bg-purple-500 h-2.5 rounded-full" style="width: 0%"></div>
-                    </div>
+    <header class="bg-[#1e293b] border-b border-gray-700 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-moon text-yellow-400 text-2xl"></i>
+                <div>
+                    <h1 class="text-xl font-bold text-white">مخطط رمضان</h1>
+                    <p class="text-[10px] text-gray-400">البيانات محفوظة محلياً (Local Storage)</p>
                 </div>
             </div>
+            <button onclick="resetData()" class="text-xs text-red-400 border border-red-900/50 hover:bg-red-900/20 px-3 py-1 rounded transition">
+                <i class="fas fa-trash-alt"></i> تصفير
+            </button>
         </div>
     </header>
 
     <main class="flex-grow container mx-auto px-4 py-8">
-        <div id="days-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div id="days-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             </div>
     </main>
 
-    <footer class="bg-dark py-6 text-center text-gray-400 text-sm border-t border-gray-700">
+    <footer class="text-center py-6 text-gray-500 text-sm">
         <p>اللهم اجعل هذا العمل خالصاً لوجهك الكريم</p>
-        <p class="mt-2 text-xs">تم التطوير لتنظيم الوقت في شهر الخير</p>
     </footer>
 
     <script>
-        // ⚙️ إعدادات البداية (توقع: 18 فبراير 2026)
         const RAMADAN_START = new Date('2026-02-18'); 
         const TOTAL_DAYS = 30;
 
-        // هيكل البيانات اليومي
-        const defaultTasks = {
-            prayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false, taraweeh: false },
-            quran: false, // جزء واحد
-            code: false,  // ساعة برمجة
-            water: false  // شرب الماء
+        // الهيكل الافتراضي لليوم الواحد
+        const defaultDay = {
+            prayerGrade: "", // التقييم: A, B, C, D, F
+            tasks: [
+                { id: 0, text: "", type: "fixed", done: false }, // القرآن (سيتم تعبئته تلقائياً)
+                { id: 1, text: "", placeholder: "اكتب مهمة...", type: "editable", done: false },
+                { id: 2, text: "", placeholder: "اكتب مهمة...", type: "editable", done: false },
+                { id: 3, text: "", placeholder: "اكتب مهمة...", type: "editable", done: false },
+                { id: 4, text: "", placeholder: "اكتب مهمة...", type: "editable", done: false }
+            ]
         };
 
-        // تحميل البيانات أو تهيئتها
-        let appData = JSON.parse(localStorage.getItem('ramadanData')) || {};
+        let appData = {};
 
         function init() {
+            // مفتاح التخزين الجديد لضمان عدم تداخل البيانات القديمة
+            const stored = localStorage.getItem('ramadanPlanner_v4');
+            
+            if (stored) {
+                appData = JSON.parse(stored);
+            } else {
+                for (let i = 1; i <= TOTAL_DAYS; i++) {
+                    // نسخ الهيكل الافتراضي
+                    appData[i] = JSON.parse(JSON.stringify(defaultDay));
+                    // ضبط نص القرآن تلقائياً
+                    appData[i].tasks[0].text = `📖 قراءة الجزء ${i}`;
+                }
+            }
+            render();
+        }
+
+        function render() {
             const grid = document.getElementById('days-grid');
             grid.innerHTML = '';
 
             for (let i = 1; i <= TOTAL_DAYS; i++) {
-                if (!appData[i]) appData[i] = JSON.parse(JSON.stringify(defaultTasks));
+                const day = appData[i];
                 
                 // حساب التاريخ
                 let date = new Date(RAMADAN_START);
                 date.setDate(date.getDate() + (i - 1));
-                let dateStr = date.toLocaleDateString('ar-SA', { weekday: 'long', month: 'short', day: 'numeric' });
+                let dateStr = date.toLocaleDateString('ar-SA', { weekday: 'long', day: 'numeric', month: 'short' });
 
-                // إنشاء الكارد
+                // تحديد لون إطار التقييم
+                let gradeClass = '';
+                if(day.prayerGrade === 'A') gradeClass = 'grade-A border-2';
+                else if(day.prayerGrade === 'B') gradeClass = 'grade-B border-2';
+                else if(day.prayerGrade === 'C') gradeClass = 'grade-C border-2';
+                else if(day.prayerGrade === 'D') gradeClass = 'grade-D border-2';
+                else if(day.prayerGrade === 'F') gradeClass = 'grade-F border-2';
+                else gradeClass = 'border-gray-700'; // الافتراضي
+
+                // بناء قائمة المهام
+                let tasksHtml = '';
+                day.tasks.forEach((task, idx) => {
+                    let inputHtml = '';
+                    
+                    // إذا كانت المهمة الأولى (قرآن) تكون نص ثابت
+                    if (idx === 0) { 
+                        inputHtml = `<span class="text-sm font-bold text-yellow-500 ${task.done ? 'line-through opacity-50' : ''}">${task.text}</span>`;
+                    } 
+                    // باقي المهام قابلة للكتابة
+                    else {
+                        inputHtml = `<input type="text" class="task-input ${task.done ? 'line-through text-gray-500' : ''}" 
+                            value="${task.text}" 
+                            placeholder="${task.placeholder}" 
+                            oninput="updateTaskText(${i}, ${idx}, this.value)">`;
+                    }
+
+                    tasksHtml += `
+                        <div class="flex items-center gap-3 mb-3">
+                            <label class="custom-checkbox cursor-pointer">
+                                <input type="checkbox" class="hidden" onchange="toggleTask(${i}, ${idx})" ${task.done ? 'checked' : ''}>
+                                <div class="w-5 h-5 border border-gray-500 rounded flex items-center justify-center transition hover:border-white bg-gray-800">
+                                    <i class="fas fa-check text-white text-[10px] hidden"></i>
+                                </div>
+                            </label>
+                            <div class="flex-grow">${inputHtml}</div>
+                        </div>
+                    `;
+                });
+
                 const card = document.createElement('div');
-                card.className = `bg-dark rounded-xl shadow-md border border-gray-700 overflow-hidden hover:border-gold transition-colors duration-300`;
+                card.className = `bg-[#1e293b] rounded-xl border shadow-md p-4 flex flex-col gap-4 relative overflow-hidden group hover:shadow-lg transition ${gradeClass}`;
                 card.innerHTML = `
-                    <div class="bg-gray-800 px-4 py-3 flex justify-between items-center border-b border-gray-700">
-                        <span class="font-bold text-gold">اليوم ${i}</span>
-                        <span class="text-xs text-gray-400">${dateStr}</span>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-white font-bold text-lg">اليوم ${i}</span>
+                            <div class="text-xs text-gray-400 mt-1">${dateStr}</div>
+                        </div>
+                        
+                        <div class="flex flex-col items-end">
+                            <label class="text-[10px] text-gray-500 mb-1">تقييم الصلاة</label>
+                            <select onchange="updateGrade(${i}, this.value)" 
+                                class="bg-transparent border border-gray-600 text-sm rounded px-1 py-1 outline-none cursor-pointer hover:bg-gray-800 transition font-bold text-center w-16">
+                                <option value="" ${day.prayerGrade === '' ? 'selected' : ''}>--</option>
+                                <option value="A" class="text-green-400" ${day.prayerGrade === 'A' ? 'selected' : ''}>A</option>
+                                <option value="B" class="text-blue-400" ${day.prayerGrade === 'B' ? 'selected' : ''}>B</option>
+                                <option value="C" class="text-yellow-400" ${day.prayerGrade === 'C' ? 'selected' : ''}>C</option>
+                                <option value="D" class="text-orange-400" ${day.prayerGrade === 'D' ? 'selected' : ''}>D</option>
+                                <option value="F" class="text-red-400" ${day.prayerGrade === 'F' ? 'selected' : ''}>F</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="p-4 space-y-3">
-                        <h4 class="text-xs font-bold text-gray-500 mb-1">الصلوات</h4>
-                        <div class="flex justify-between gap-1 mb-3">
-                            ${renderCheckbox(i, 'prayers', 'fajr', 'F')}
-                            ${renderCheckbox(i, 'prayers', 'dhuhr', 'Z')}
-                            ${renderCheckbox(i, 'prayers', 'asr', 'A')}
-                            ${renderCheckbox(i, 'prayers', 'maghrib', 'M')}
-                            ${renderCheckbox(i, 'prayers', 'isha', 'I')}
-                            ${renderCheckbox(i, 'prayers', 'taraweeh', 'T', 'border-blue-500 text-blue-500')}
-                        </div>
 
-                        <div class="space-y-2">
-                            <label class="checkbox-wrapper flex items-center cursor-pointer bg-gray-900 p-2 rounded border border-gray-800 hover:bg-gray-800">
-                                <input type="checkbox" class="hidden" onchange="toggleTask(${i}, 'quran')" ${appData[i].quran ? 'checked' : ''}>
-                                <div class="w-5 h-5 border-2 border-gray-500 rounded flex items-center justify-center mr-3 ml-2 transition-colors">
-                                    <i class="fas fa-check text-white text-xs hidden"></i>
-                                </div>
-                                <span class="text-sm select-none">📖 قراءة الجزء ${i}</span>
-                            </label>
+                    <hr class="border-gray-700/50">
 
-                            <label class="checkbox-wrapper flex items-center cursor-pointer bg-gray-900 p-2 rounded border border-gray-800 hover:bg-gray-800">
-                                <input type="checkbox" class="hidden" onchange="toggleTask(${i}, 'code')" ${appData[i].code ? 'checked' : ''}>
-                                <div class="w-5 h-5 border-2 border-gray-500 rounded flex items-center justify-center mr-3 ml-2 transition-colors">
-                                    <i class="fas fa-check text-white text-xs hidden"></i>
-                                </div>
-                                <span class="text-sm select-none">💻 جلسة كود (ساعة)</span>
-                            </label>
-
-                            <label class="checkbox-wrapper flex items-center cursor-pointer bg-gray-900 p-2 rounded border border-gray-800 hover:bg-gray-800">
-                                <input type="checkbox" class="hidden" onchange="toggleTask(${i}, 'water')" ${appData[i].water ? 'checked' : ''}>
-                                <div class="w-5 h-5 border-2 border-gray-500 rounded flex items-center justify-center mr-3 ml-2 transition-colors">
-                                    <i class="fas fa-check text-white text-xs hidden"></i>
-                                </div>
-                                <span class="text-sm select-none">💧 شرب 2 لتر ماء</span>
-                            </label>
-                        </div>
+                    <div>
+                        ${tasksHtml}
                     </div>
                 `;
                 grid.appendChild(card);
             }
-            updateStats();
         }
 
-        function renderCheckbox(day, category, key, label, extraClass = 'border-gray-500') {
-            const isChecked = appData[day][category][key];
-            return `
-                <label class="checkbox-wrapper cursor-pointer flex flex-col items-center">
-                    <input type="checkbox" class="hidden" onchange="toggleSubTask(${day}, '${category}', '${key}')" ${isChecked ? 'checked' : ''}>
-                    <div class="w-8 h-8 border-2 ${extraClass} rounded-full flex items-center justify-center transition-colors mb-1 hover:bg-gray-700">
-                        <span class="text-[10px] font-bold ${isChecked ? 'text-white' : 'text-gray-400'}">${label}</span>
-                        <i class="fas fa-check text-white text-xs absolute ${isChecked ? 'block' : 'hidden'}"></i>
-                    </div>
-                </label>
-            `;
+        // --- Logic Functions ---
+
+        function toggleTask(dayIdx, taskIdx) {
+            appData[dayIdx].tasks[taskIdx].done = !appData[dayIdx].tasks[taskIdx].done;
+            save();
+            render(); 
         }
 
-        // Logic Functions
-        function toggleTask(day, task) {
-            appData[day][task] = !appData[day][task];
-            saveAndRender();
+        function updateTaskText(dayIdx, taskIdx, text) {
+            appData[dayIdx].tasks[taskIdx].text = text;
+            save(); // حفظ فقط بدون إعادة رسم للحفاظ على التركيز
         }
 
-        function toggleSubTask(day, category, key) {
-            appData[day][category][key] = !appData[day][category][key];
-            saveAndRender();
+        function updateGrade(dayIdx, grade) {
+            appData[dayIdx].prayerGrade = grade;
+            save();
+            render(); // إعادة رسم لتحديث لون الإطار
         }
 
-        function saveAndRender() {
-            localStorage.setItem('ramadanData', JSON.stringify(appData));
-            updateStats();
-        }
-
-        function updateStats() {
-            let totalQuran = 0, totalPrayers = 0, totalCode = 0;
-            const prayerCount = 6 * TOTAL_DAYS; // 5 prayers + taraweeh
-
-            for (let i = 1; i <= TOTAL_DAYS; i++) {
-                if (appData[i].quran) totalQuran++;
-                if (appData[i].code) totalCode++;
-                
-                Object.values(appData[i].prayers).forEach(p => {
-                    if (p) totalPrayers++;
-                });
-            }
-
-            setBar('quran', totalQuran, TOTAL_DAYS);
-            setBar('pray', totalPrayers, prayerCount);
-            setBar('code', totalCode, TOTAL_DAYS);
-        }
-
-        function setBar(id, value, max) {
-            const percent = Math.round((value / max) * 100);
-            document.getElementById(`${id}-bar`).style.width = `${percent}%`;
-            document.getElementById(`${id}-percent`).innerText = `${percent}%`;
+        function save() {
+            localStorage.setItem('ramadanPlanner_v4', JSON.stringify(appData));
         }
 
         function resetData() {
-            if(confirm('هل أنت متأكد من حذف جميع البيانات والبدء من جديد؟')) {
-                localStorage.removeItem('ramadanData');
-                appData = {};
-                init(); // إعادة تحميل
+            if(confirm("هل أنت متأكد؟ سيتم حذف جميع البيانات والبدء من الصفر.")) {
+                localStorage.removeItem('ramadanPlanner_v4');
                 location.reload();
             }
         }
 
-        // تشغيل التطبيق
+        // Start App
         init();
     </script>
 </body>
