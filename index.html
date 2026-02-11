@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مخطط رمضان | الإصدار النهائي</title>
+    <title>مخطط رمضان | Ramadan Planner</title>
     <meta name="theme-color" content="#1e293b">
     
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -13,7 +13,20 @@
         await OneSignal.init({
           appId: "99d92fb6-6623-45be-a725-fd8c77604daf",
           safari_web_id: "web.onesignal.auto.48d9c6a2-4943-4221-b17b-a4e235bf1c7d",
-          notifyButton: { enable: true }
+          // تعريف المسار الفرعي q10 ضروري جداً هنا
+          serviceWorkerParam: { scope: "/q10/" },
+          serviceWorkerPath: "OneSignalSDKWorker.js",
+          notifyButton: {
+            enable: true,
+            position: 'bottom-left'
+          },
+          promptOptions: {
+            slidedown: {
+              enabled: true,
+              autoPrompt: true,
+              timeDelay: 5
+            }
+          }
         });
       });
 
@@ -59,13 +72,13 @@
 
                 <div class="flex flex-wrap gap-2 justify-center">
                     <button onclick="subscribeNow()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-600/50 px-3 py-2 rounded-lg text-xs transition">
-                        <i class="fas fa-bell ml-1"></i> تنبيهات
+                        <i class="fas fa-bell ml-1"></i> تفعيل التنبيهات
                     </button>
                     <button onclick="showHadith()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-xs transition border border-gray-600">
-                        <i class="fas fa-lightbulb text-yellow-400 ml-1"></i> حديث
+                        حديث
                     </button>
                     <button onclick="showChart()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-xs transition border border-gray-600">
-                        <i class="fas fa-chart-line text-blue-400 ml-1"></i> تحليل
+                        تحليل
                     </button>
                     <button onclick="exportData()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-xs border border-gray-600">
                         <i class="fas fa-download"></i>
@@ -104,7 +117,7 @@
     <div id="note-modal" class="modal">
         <div class="bg-[#1e293b] w-full max-w-md rounded-xl p-5 shadow-2xl border border-gray-700">
             <h3 class="text-lg font-bold text-white mb-4">تدوين اليوم <span id="note-day-num"></span></h3>
-            <textarea id="note-text" class="w-full h-40 bg-[#0f172a] border border-gray-600 rounded-lg p-3 text-white outline-none focus:border-yellow-500 resize-none"></textarea>
+            <textarea id="note-text" class="w-full h-40 bg-[#0f172a] border border-gray-600 rounded-lg p-3 text-white outline-none resize-none"></textarea>
             <div class="mt-4 flex gap-2">
                 <button onclick="saveNote()" class="flex-grow bg-blue-600 text-white py-3 rounded-lg font-bold">حفظ</button>
                 <button onclick="closeModal('note-modal')" class="px-6 bg-gray-700 text-white rounded-lg">إلغاء</button>
@@ -115,7 +128,7 @@
     <div id="hadith-modal" class="modal">
         <div class="bg-[#1e293b] w-full max-w-sm rounded-xl p-6 text-center border border-gray-700">
             <i class="fas fa-quote-right text-yellow-500 text-2xl mb-4"></i>
-            <p id="hadith-content" class="text-white leading-relaxed mb-6"></p>
+            <p id="hadith-content" class="text-white mb-6"></p>
             <button onclick="closeModal('hadith-modal')" class="w-full bg-gray-700 text-white py-3 rounded-lg">إغلاق</button>
         </div>
     </div>
@@ -128,7 +141,7 @@
         let currentNoteDay = null;
 
         function init() {
-            const stored = localStorage.getItem('ramadan_Planner_V20'); 
+            const stored = localStorage.getItem('ramadan_Planner_V22'); 
             if (stored) { appData = JSON.parse(stored); } 
             else { resetToNew(); }
             render(); updateStats(); startCountdown();
@@ -196,12 +209,12 @@
         function toggleTask(d, t) { appData[d].tasks[t].done = !appData[d].tasks[t].done; if(appData[d].tasks.every(x=>x.done)) confetti(); save(); render(); updateStats(); }
         function updateTaskText(d, t, txt) { appData[d].tasks[t].text = txt; save(); }
         function updateGrade(d, g) { appData[d].prayerGrade = g; save(); render(); updateStats(); }
-        function save() { localStorage.setItem('ramadan_Planner_V20', JSON.stringify(appData)); }
+        function save() { localStorage.setItem('ramadan_Planner_V22', JSON.stringify(appData)); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function openNote(d) { currentNoteDay = d; document.getElementById('note-day-num').innerText = d; document.getElementById('note-text').value = appData[d].note; document.getElementById('note-modal').classList.add('active'); }
         function saveNote() { appData[currentNoteDay].note = document.getElementById('note-text').value; save(); closeModal('note-modal'); render(); }
         function showHadith() { document.getElementById('hadith-content').innerText = QUOTES[Math.floor(Math.random()*QUOTES.length)]; document.getElementById('hadith-modal').classList.add('active'); }
-        function exportData() { const s="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(appData)); const a=document.createElement('a'); a.href=s; a.download="ramadan_v20.json"; a.click(); }
+        function exportData() { const s="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(appData)); const a=document.createElement('a'); a.href=s; a.download="ramadan_v22.json"; a.click(); }
         function importData(input) { const f=input.files[0]; const r=new FileReader(); r.onload=(e)=>{ appData=JSON.parse(e.target.result); save(); location.reload(); }; r.readAsText(f); }
 
         function updateStats() {
@@ -226,4 +239,3 @@
     </script>
 </body>
 </html>
-    
