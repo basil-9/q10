@@ -15,7 +15,7 @@
           safari_web_id: "web.onesignal.auto.10283c79-e588-467f-9467-f58c7e997a47",
           notifyButton: { 
             enable: true,
-            position: 'bottom-right', /* الجرس سيظهر في الزاوية اليمنى */
+            position: 'bottom-right',
             size: 'medium',
             theme: 'default'
           },
@@ -57,24 +57,23 @@
     <div id="stars-container"></div>
 
     <header class="bg-[#1e293b] border-b border-gray-700 sticky top-0 z-40 shadow-xl">
-        <div class="container mx-auto px-4 py-2">
-            <div class="flex justify-between items-center text-[10px] md:text-xs text-gray-400 mb-2 border-b border-gray-800 pb-1">
-                <div id="live-clock"><i class="far fa-clock ml-1"></i> --:--:--</div>
-                <div class="flex items-center gap-3">
-                    <button onclick="toggleTheme()" class="text-yellow-500 hover:text-white" title="تبديل النمط"><i class="fas fa-moon"></i></button>
-                    <div id="live-date"><i class="far fa-calendar-alt ml-1"></i> ----/--/--</div>
-                </div>
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center text-sm md:text-base text-gray-300 mb-4 border-b border-gray-800 pb-2">
+                <div id="live-clock" class="font-bold"><i class="far fa-clock ml-1"></i> --:--:--</div>
+                <div id="ramadan-day-now" class="text-yellow-500 font-bold text-lg px-3 py-1 bg-gray-800 rounded-full">اليوم --</div>
+                <div id="live-date" class="font-bold"><i class="far fa-calendar-alt ml-1"></i> ----/--/--</div>
             </div>
 
             <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
                 <div class="flex items-center gap-3 w-full md:w-auto justify-center md:justify-start">
                     <div class="text-center md:text-right">
-                        <h1 id="greeting-text" class="text-sm md:text-base font-bold text-white whitespace-nowrap">مخطط رمضان</h1>
-                        <div id="countdown" class="text-[10px] text-green-400 font-mono uppercase">...</div>
+                        <h1 id="greeting-text" class="text-base md:text-lg font-bold text-white whitespace-nowrap">مخطط رمضان</h1>
+                        <div id="countdown" class="text-xs text-green-400 font-mono uppercase">...</div>
                     </div>
                 </div>
 
                 <div class="flex flex-wrap gap-2 justify-center w-full md:w-auto">
+                    <button onclick="toggleTheme()" class="bg-gray-800 text-yellow-500 px-3 py-2 rounded-lg" title="تبديل النمط"><i class="fas fa-moon"></i></button>
                     <button onclick="openAzkar()" class="bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fas fa-beads"></i> الأذكار</button>
                     <button onclick="showHadith()" class="bg-gray-700 text-white px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fas fa-lightbulb text-yellow-400"></i> حديث</button>
                     <button onclick="showChart()" class="bg-gray-700 text-white px-3 py-2 rounded-lg text-sm flex items-center gap-2"><i class="fas fa-chart-line text-blue-400"></i> التحليل</button>
@@ -141,8 +140,6 @@
     <script>
         const RAMADAN_START = new Date('2026-02-18T00:00:00'); 
         const TOTAL_DAYS = 30;
-        const MAIN_COLOR = '#fbbf24';
-        const QUOTES = ["الصيام والقرآن يشفعان للعبد.", "من صام رمضان إيماناً واحتساباً غفر له.", "تسحّروا فإن في السحور بركة.", "عمرة في رمضان تعدل حجة.", "أحب الأعمال إلى الله أدومها.", "إن للصائم عند فطره لدعوة ما ترد."];
         const AZKAR_DATA = [
             { title: "سبحان الله وبحمده", target: 33 }, { title: "الحمد لله", target: 33 }, { title: "الله أكبر", target: 33 },
             { title: "لا إله إلا الله وحده لا شريك له", target: 10 }, { title: "أستغفر الله وأتوب إليه", target: 100 },
@@ -241,6 +238,18 @@
                 const now = new Date();
                 document.getElementById('live-clock').innerHTML = `<i class="far fa-clock ml-1"></i> ${now.toLocaleTimeString('ar-SA')}`;
                 document.getElementById('live-date').innerHTML = `<i class="far fa-calendar-alt ml-1"></i> ${now.toLocaleDateString('ar-SA')}`;
+                
+                // تحديث رقم اليوم في الهيدر بناءً على التاريخ الحالي
+                const diffTime = now - RAMADAN_START;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                const dayEl = document.getElementById('ramadan-day-now');
+                if (diffDays >= 1 && diffDays <= 30) {
+                    dayEl.innerText = `اليوم ${diffDays}`;
+                } else if (diffDays < 1) {
+                    dayEl.innerText = `استعد لرمضان`;
+                } else {
+                    dayEl.innerText = `عيد مبارك`;
+                }
             }, 1000);
         }
 
