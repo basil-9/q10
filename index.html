@@ -31,7 +31,7 @@
         .theme-sunset { --primary-bg: linear-gradient(to bottom, #2d1b4e, #1a1a2e); }
         body { font-family: 'Tajawal', sans-serif; background: var(--primary-bg); color: #f8fafc; overflow-x: hidden; -webkit-tap-highlight-color: transparent; transition: all 1s ease; min-height: 100vh; }
         .glass-panel { background: var(--panel-bg); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .task-input { background: transparent; border: none; border-bottom: 1px solid #334155; color: #e2e8f0; width: 100%; padding: 8px 0; outline: none; transition: 0.3s; font-size: 16px; } 
+        .task-input { background: transparent; border: none; border-bottom: 1px solid #334155; color: #e2e8f0; width: 100%; padding: 4px 0; outline: none; transition: 0.3s; font-size: 14px; } 
         .task-input:focus { border-bottom-color: #fbbf24; }
         .custom-checkbox input:checked + div { background-color: #10b981; border-color: #10b981; }
         .modal { opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; position: fixed; inset: 0; }
@@ -90,13 +90,12 @@
     </header>
 
     <main class="flex-grow container mx-auto px-4 py-6 space-y-6">
-        <section class="glass-panel p-5 rounded-xl border-emerald-500/30">
-            <h2 class="text-emerald-400 font-bold mb-3 text-sm flex items-center gap-2"><i class="fas fa-book-quran"></i> وِرد اليوم والتفسير الميسّر</h2>
+        <section class="glass-panel p-4 rounded-xl border-emerald-500/30">
+            <h2 class="text-emerald-400 font-bold mb-2 text-sm flex items-center gap-2"><i class="fas fa-book-quran"></i> وِرد اليوم والتفسير الميسّر</h2>
             <div id="quran-verse-box" class="text-center">
-                <p id="verse-arabic" class="text-lg md:text-xl text-white font-serif mb-3 leading-relaxed italic">جاري تحميل الآية...</p>
-                <div class="bg-black/20 p-3 rounded-lg text-right">
-                    <span class="text-yellow-500 text-[10px] font-bold block mb-1">التفسير الميسّر:</span>
-                    <p id="verse-tafseer" class="text-xs text-gray-300 leading-relaxed">...</p>
+                <p id="verse-arabic" class="text-base md:text-lg text-white font-serif mb-2 italic">جاري تحميل الآية...</p>
+                <div class="bg-black/20 p-2 rounded-lg text-right">
+                    <p id="verse-tafseer" class="text-[10px] text-gray-300 leading-relaxed">...</p>
                 </div>
             </div>
         </section>
@@ -111,29 +110,22 @@
             <button onclick="closeModal('prayer-modal')" class="mt-6 bg-gray-700 text-white px-8 py-2 rounded-full">إغلاق</button>
         </div>
     </div>
-
     <div id="azkar-modal" class="modal flex items-center justify-center bg-black/80 px-4">
-        <div class="modal-content w-full max-w-2xl rounded-xl border border-gray-600 p-5 bg-[#1e293b] relative">
+        <div class="modal-content w-full max-w-2xl rounded-xl border border-gray-600 p-5 bg-[#1e293b] relative text-center">
             <button onclick="closeModal('azkar-modal')" class="absolute top-4 left-4 text-gray-400"><i class="fas fa-times text-xl"></i></button>
             <h3 class="text-xl font-bold text-white mb-6">المسبحة الذكية</h3>
-            <div id="tasbeeh-count" class="text-7xl font-mono text-white text-center mb-6">0</div>
+            <div id="tasbeeh-count" class="text-7xl font-mono text-white mb-6">0</div>
             <button onclick="processTasbeeh()" class="w-full bg-emerald-600 p-6 rounded-xl text-3xl"><i class="fas fa-fingerprint"></i></button>
         </div>
     </div>
-
     <div id="hadith-modal" class="modal flex items-center justify-center bg-black/80 px-4"><div class="modal-content w-full max-w-md rounded-xl p-6 text-center border border-gray-600 bg-[#1e293b]"><p id="hadith-content" class="text-white italic mb-6">...</p><button onclick="closeModal('hadith-modal')" class="bg-gray-700 text-white px-8 py-2 rounded-full">إغلاق</button></div></div>
     <div id="chart-modal" class="modal flex items-center justify-center bg-black/80 px-4"><div class="modal-content w-full max-w-4xl rounded-xl p-4 border border-gray-600 bg-[#1e293b]"><h3 class="text-lg font-bold text-white mb-4 text-center">📊 التحليل البياني</h3><div class="h-64"><canvas id="performanceChart"></canvas></div></div></div>
     <div id="note-modal" class="modal flex items-center justify-center bg-black/80 px-4"><div class="modal-content w-full max-w-lg rounded-xl p-5 border border-gray-600 bg-[#1e293b]"><h3 class="text-lg font-bold text-white mb-4">تدوين الخواطر</h3><textarea id="note-text" class="w-full h-40 bg-[#0f172a] border border-gray-600 rounded-lg p-3 text-gray-200 outline-none"></textarea><button onclick="saveNote()" class="bg-blue-600 text-white px-6 py-3 rounded-lg w-full mt-4 font-bold">حفظ</button></div></div>
 
-    <footer class="text-center py-8 text-gray-600 text-xs border-t border-gray-800 bg-[#0f172a]"><p>اللهم اجعل هذا العمل خالصاً لوجهك الكريم</p></footer>
-
     <script>
         const RAMADAN_START = new Date('2026-02-18T00:00:00');
         const TOTAL_DAYS = 30;
-        const QUOTES = ["الصيام والقرآن يشفعان للعبد.", "من صام رمضان إيماناً واحتساباً غفر له.", "تسحّروا فإن في السحور بركة."];
-
         let appData = {};
-        let currentNoteDay = null;
         let chartInstance = null;
 
         function init() {
@@ -143,11 +135,11 @@
                 for (let i = 1; i <= TOTAL_DAYS; i++) {
                     appData[i] = { note: "",
                         tasks: [
-                            { id: 0, text: `📖 قراءة الجزء ${i}`, type: "fixed", done: false },
-                            { id: 1, text: "", placeholder: "💧 شرب الماء", type: "editable", done: false },
-                            { id: 2, text: "", placeholder: "💻 جلسة كود...", type: "editable", done: false },
-                            { id: 3, text: "", placeholder: "✨ مهمة إضافية...", type: "editable", done: false },
-                            { id: 4, text: "", placeholder: "✨ مهمة إضافية...", type: "editable", done: false }
+                            { text: `📖 قراءة الجزء ${i}`, done: false },
+                            { text: "", placeholder: "💧 شرب الماء", done: false },
+                            { text: "", placeholder: "💻 جلسة كود...", done: false },
+                            { text: "", placeholder: "✨ مهمة إضافية...", done: false },
+                            { text: "", placeholder: "✨ مهمة إضافية...", done: false }
                         ]
                     };
                 }
@@ -161,36 +153,8 @@
                 const res = await fetch(`https://api.alquran.cloud/v1/ayah/${dayOfYear}/ar.jalalayn`);
                 const data = await res.json();
                 document.getElementById('verse-arabic').innerText = data.data.text;
-                document.getElementById('verse-tafseer').innerText = "تفسير موثق من علماء الأمة للمصحف الميسر.";
+                document.getElementById('verse-tafseer').innerText = "تفسير الجلالين للآية المختارة لهذا اليوم.";
             } catch (e) { document.getElementById('verse-arabic').innerText = "وَاعْتَصِمُوا بِحَبْلِ اللَّهِ جَمِيعًا"; }
-        }
-
-        function showPrayerTimes() {
-            document.getElementById('prayer-modal').classList.add('active');
-            const list = document.getElementById('prayer-list');
-            list.innerHTML = '<p class="col-span-2 text-xs text-blue-400">جاري التحديد...</p>';
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&method=4`);
-                const data = await res.json();
-                const t = data.data.timings;
-                const names = {Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء"};
-                list.innerHTML = Object.entries(names).map(([key, name]) => `<div class="bg-gray-800 p-2 rounded border border-gray-700"><div class="text-[10px] text-gray-400">${name}</div><div class="text-sm font-bold text-white">${t[key]}</div></div>`).join('');
-            });
-        }
-
-        function startTime() {
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('live-clock').innerHTML = `<i class="far fa-clock ml-1"></i> ${now.toLocaleTimeString('ar-SA')}`;
-                document.getElementById('live-date').innerHTML = `<i class="far fa-calendar-alt ml-1"></i> ${now.toLocaleDateString('ar-SA')}`;
-                
-                const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-uma', {weekday:'long', day:'numeric', month:'long'});
-                document.getElementById('hijri-full-date').innerText = hijriFormatter.format(now);
-
-                const diffDays = Math.floor((now - RAMADAN_START) / 864e5) + 1;
-                const dayEl = document.getElementById('ramadan-day-now');
-                dayEl.innerText = (diffDays >= 1 && diffDays <= 30) ? `اليوم ${diffDays}` : (diffDays < 1 ? "استعد لرمضان" : "عيد مبارك");
-            }, 1000);
         }
 
         function render() {
@@ -204,45 +168,59 @@
                 let borderClass = day.tasks.every(t => t.done) ? 'day-complete' : 'border-gray-700';
 
                 let tasksHtml = day.tasks.map((task, idx) => {
-                    let input = idx === 0 
+                    let isFirst = idx === 0;
+                    let input = isFirst 
                         ? `<span class="text-xs font-bold ${task.done ? 'line-through opacity-50' : 'text-yellow-500'}">${task.text}</span>`
                         : `<input type="text" class="task-input text-xs ${task.done ? 'line-through text-gray-500' : ''}" value="${task.text}" placeholder="${task.placeholder}" oninput="updateTaskText(${i}, ${idx}, this.value)">`;
                     return `<div class="flex items-center gap-2 mb-2"><label class="custom-checkbox"><input type="checkbox" class="hidden" onchange="toggleTask(${i}, ${idx})" ${task.done ? 'checked' : ''}><div class="w-5 h-5 border border-gray-500 rounded flex items-center justify-center bg-gray-800"><i class="fas fa-check text-white text-[10px] ${task.done ? '' : 'hidden'}"></i></div></label><div class="flex-grow">${input}</div></div>`;
                 }).join('');
 
-                grid.innerHTML += `<div class="bg-[#1e293b] rounded-xl border shadow-lg p-4 flex flex-col gap-3 relative ${borderClass}"><div class="flex justify-between items-start"><div><span class="text-white font-bold text-lg">اليوم ${i}</span><div class="text-[10px] text-gray-400">${dateStr}</div></div><div class="flex gap-1"><button onclick="openNote(${i})" class="${day.note ? 'text-yellow-500' : 'text-gray-500'} w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center"><i class="fas fa-pen text-[10px]"></i></button></div></div><hr class="border-gray-700/50"><div>${tasksHtml}</div></div>`;
+                grid.innerHTML += `<div class="bg-[#1e293b] rounded-xl border shadow-lg p-4 flex flex-col gap-3 relative ${borderClass}"><div class="flex justify-between items-start"><div><span class="text-white font-bold text-lg">اليوم ${i}</span><div class="text-[10px] text-gray-400">${dateStr}</div></div><button onclick="openNote(${i})" class="${day.note ? 'text-yellow-500' : 'text-gray-500'} w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center"><i class="fas fa-pen text-[10px]"></i></button></div><hr class="border-gray-700/50"><div>${tasksHtml}</div></div>`;
             }
-        }
-
-        function updateStats() {
-            let q=0, tt=0, td=0;
-            for(let i=1; i<=TOTAL_DAYS; i++) {
-                if(appData[i].tasks[0].done) q++;
-                appData[i].tasks.slice(1).forEach(t=>{tt++;if(t.done)td++});
-            }
-            document.getElementById('quran-stat').innerText=q;
-            document.getElementById('quran-bar').style.width=`${(q/30)*100}%`;
-            document.getElementById('task-stat').innerText=tt?Math.round((td/tt)*100):0;
-            document.getElementById('task-bar').style.width=`${tt?Math.round((td/tt)*100):0}%`;
         }
 
         function toggleTask(d, t) { appData[d].tasks[t].done = !appData[d].tasks[t].done; if(appData[d].tasks.every(x=>x.done)) celebrate(); save(); render(); updateStats(); }
         function save() { localStorage.setItem('ramadan_Planner_V15_Final', JSON.stringify(appData)); }
         function updateTaskText(d, t, txt) { appData[d].tasks[t].text = txt; save(); }
+        function startTime() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('live-clock').innerHTML = `<i class="far fa-clock ml-1"></i> ${now.toLocaleTimeString('ar-SA')}`;
+                document.getElementById('live-date').innerHTML = `<i class="far fa-calendar-alt ml-1"></i> ${now.toLocaleDateString('ar-SA')}`;
+                const hj = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-uma', {weekday:'long', day:'numeric', month:'long'});
+                document.getElementById('hijri-full-date').innerText = hj.format(now);
+                const diffDays = Math.floor((now - RAMADAN_START) / 864e5) + 1;
+                document.getElementById('ramadan-day-now').innerText = (diffDays >= 1 && diffDays <= 30) ? `اليوم ${diffDays}` : (diffDays < 1 ? "استعد لرمضان" : "عيد مبارك");
+            }, 1000);
+        }
+        function updateStats() {
+            let q=0, tt=0, td=0;
+            for(let i=1; i<=TOTAL_DAYS; i++) { if(appData[i].tasks[0].done) q++; appData[i].tasks.slice(1).forEach(t=>{tt++;if(t.done)td++}); }
+            document.getElementById('quran-stat').innerText=q; document.getElementById('quran-bar').style.width=`${(q/30)*100}%`;
+            document.getElementById('task-stat').innerText=tt?Math.round((td/tt)*100):0; document.getElementById('task-bar').style.width=`${tt?Math.round((td/tt)*100):0}%`;
+        }
+        function showPrayerTimes() {
+            document.getElementById('prayer-modal').classList.add('active');
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&method=4`);
+                const data = await res.json();
+                const names = {Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء"};
+                document.getElementById('prayer-list').innerHTML = Object.entries(names).map(([k, n]) => `<div class="bg-gray-800 p-2 rounded border border-gray-700 text-white"><div class="text-[10px] text-gray-400">${n}</div><div class="text-sm font-bold">${data.data.timings[k]}</div></div>`).join('');
+            });
+        }
+        function startCountdown() { setInterval(() => { const d = RAMADAN_START - new Date(); document.getElementById('countdown').innerText = d < 0 ? "رمضان مبارك!" : `باقي ${Math.floor(d / 864e5)} يوم`; }, 1000); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function toggleTheme() { document.body.classList.toggle('theme-gold'); }
         function openAzkar() { document.getElementById('azkar-modal').classList.add('active'); }
-        function showHadith() { document.getElementById('hadith-content').innerText = QUOTES[Math.floor(Math.random()*QUOTES.length)]; document.getElementById('hadith-modal').classList.add('active'); }
-        function startCountdown() { setInterval(() => { const d = RAMADAN_START - new Date(); document.getElementById('countdown').innerText = d < 0 ? "رمضان مبارك!" : `باقي ${Math.floor(d / 864e5)} يوم`; }, 1000); }
+        function showHadith() { document.getElementById('hadith-content').innerText = "من صام رمضان إيماناً واحتساباً غفر له ما تقدم من ذنبه."; document.getElementById('hadith-modal').classList.add('active'); }
+        function processTasbeeh() { let c = parseInt(document.getElementById('tasbeeh-count').innerText) + 1; document.getElementById('tasbeeh-count').innerText = c; navigator.vibrate?.(50); }
         function celebrate() { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); }
         function openNote(d) { currentNoteDay = d; document.getElementById('note-text').value = appData[d].note; document.getElementById('note-modal').classList.add('active'); }
         function saveNote() { appData[currentNoteDay].note = document.getElementById('note-text').value; save(); closeModal('note-modal'); render(); }
         function checkSunset() { const h = new Date().getHours(); if (h >= 18 || h < 5) document.body.classList.add('theme-sunset'); }
         function createStars() { const container = document.getElementById('stars-container'); for (let i = 0; i < 40; i++) { const star = document.createElement('div'); star.className = 'star'; star.style.width = star.style.height = Math.random() * 2 + 'px'; star.style.top = Math.random() * 100 + '%'; star.style.left = Math.random() * 100 + '%'; container.appendChild(star); } }
         function updateGreeting() { let n = localStorage.getItem('user_name') || prompt("اسمك؟") || "يا بطل"; localStorage.setItem('user_name', n); document.getElementById('greeting-text').innerText = `رمضان كريم يا ${n} 🌙`; }
-        function processTasbeeh() { let c = parseInt(document.getElementById('tasbeeh-count').innerText) + 1; document.getElementById('tasbeeh-count').innerText = c; navigator.vibrate?.(50); }
         function showChart(){ document.getElementById('chart-modal').classList.add('active'); const ctx=document.getElementById('performanceChart').getContext('2d'); if(chartInstance)chartInstance.destroy(); chartInstance=new Chart(ctx,{type:'line',data:{labels:Array.from({length:30},(_,i)=>i+1),datasets:[{label:'الإنجاز',data:Array.from({length:30},(_,i)=>{const t=appData[i+1].tasks; return (t.filter(x=>x.done).length/t.length)*100}),borderColor:'#fbbf24'}]},options:{responsive:true,maintainAspectRatio:false}}); }
-
         init();
     </script>
 </body>
