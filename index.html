@@ -31,7 +31,6 @@
         .theme-sunset { --primary-bg: linear-gradient(to bottom, #2d1b4e, #1a1a2e); }
         body { font-family: 'Tajawal', sans-serif; background: var(--primary-bg); color: #f8fafc; overflow-x: hidden; -webkit-tap-highlight-color: transparent; transition: all 1s ease; min-height: 100vh; }
         .glass-panel { background: var(--panel-bg); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        /* تعديل لجعل المهام تظهر كاملة بدون قص */
         .task-input { background: transparent; border: none; border-bottom: 1px solid #334155; color: #e2e8f0; width: 100%; padding: 6px 0; outline: none; transition: 0.3s; font-size: 15px; } 
         .task-input:focus { border-bottom-color: #fbbf24; }
         .custom-checkbox input:checked + div { background-color: #10b981; border-color: #10b981; }
@@ -113,15 +112,31 @@
 
         function init() {
             const stored = localStorage.getItem('ramadan_Planner_V15_Final');
-            if (stored) { appData = JSON.parse(stored); }
+            if (stored) { 
+                appData = JSON.parse(stored);
+                // تحديث المهام في حال كانت القائمة القديمة مختلفة لضمان وجود 5 مهام فقط
+                for (let i = 1; i <= 30; i++) {
+                    if (appData[i].tasks.length !== 5) {
+                        appData[i].tasks = [
+                            { text: `📖 قراءة الجزء ${i}`, done: appData[i].tasks[0]?.done || false },
+                            { text: appData[i].tasks[1]?.text || "", placeholder: "مهمة اختيارية 1", done: appData[i].tasks[1]?.done || false },
+                            { text: appData[i].tasks[2]?.text || "", placeholder: "مهمة اختيارية 2", done: appData[i].tasks[2]?.done || false },
+                            { text: appData[i].tasks[3]?.text || "", placeholder: "مهمة اختيارية 3", done: appData[i].tasks[3]?.done || false },
+                            { text: appData[i].tasks[4]?.text || "", placeholder: "مهمة اختيارية 4", done: appData[i].tasks[4]?.done || false }
+                        ];
+                    }
+                    // التأكد من ثبات نص القرآن
+                    appData[i].tasks[0].text = `📖 قراءة الجزء ${i}`;
+                }
+            }
             else {
                 for (let i = 1; i <= 30; i++) {
                     appData[i] = { note: "", tasks: [
                         { text: `📖 قراءة الجزء ${i}`, done: false },
-                        { text: "", placeholder: "💧 شرب الماء", done: false },
-                        { text: "", placeholder: "💻 جلسة كود...", done: false },
-                        { text: "", placeholder: "✨ مهمة إضافية...", done: false },
-                        { text: "", placeholder: "✨ مهمة إضافية...", done: false }
+                        { text: "", placeholder: "مهمة اختيارية 1", done: false },
+                        { text: "", placeholder: "مهمة اختيارية 2", done: false },
+                        { text: "", placeholder: "مهمة اختيارية 3", done: false },
+                        { text: "", placeholder: "مهمة اختيارية 4", done: false }
                     ]};
                 }
             }
@@ -160,7 +175,6 @@
             }
         }
 
-        // تحويل وقت الصلاة لنظام 12 ساعة
         function format12Hour(timeStr) {
             let [hours, minutes] = timeStr.split(':');
             hours = parseInt(hours);
@@ -207,6 +221,7 @@
         function showHadith() { document.getElementById('hadith-content').innerText = "خلوف فم الصائم أطيب عند الله من ريح المسك."; document.getElementById('hadith-modal').classList.add('active'); }
         function processTasbeeh() { let c = parseInt(document.getElementById('tasbeeh-count').innerText) + 1; document.getElementById('tasbeeh-count').innerText = c; navigator.vibrate?.(50); }
         function celebrate() { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); }
+        let currentNoteDay = 1;
         function openNote(d) { currentNoteDay = d; document.getElementById('note-text').value = appData[d].note; document.getElementById('note-modal').classList.add('active'); }
         function saveNote() { appData[currentNoteDay].note = document.getElementById('note-text').value; save(); closeModal('note-modal'); render(); }
         function checkSunset() { const h = new Date().getHours(); if (h >= 18 || h < 5) document.body.classList.add('theme-sunset'); }
