@@ -11,9 +11,15 @@
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
-          appId: "d3f381d6-8c4d-4090-a8ed-984b5cbaae7c",
-          safari_web_id: "web.onesignal.auto.399b8e00-4d8c-471a-9e28-27f67ae2986b",
-          notifyButton: { enable: true },
+          appId: "99d92fb6-6623-45be-a725-fd8c77604daf",
+          safari_web_id: "web.onesignal.auto.10283c79-e588-467f-9467-f58c7e997a47",
+          notifyButton: { 
+            enable: true,
+            position: 'bottom-right', /* الجرس سيظهر في الزاوية اليمنى */
+            size: 'medium',
+            theme: 'default'
+          },
+          allowLocalhostAsSecureOrigin: true
         });
       });
     </script>
@@ -140,7 +146,7 @@
         const AZKAR_DATA = [
             { title: "سبحان الله وبحمده", target: 33 }, { title: "الحمد لله", target: 33 }, { title: "الله أكبر", target: 33 },
             { title: "لا إله إلا الله وحده لا شريك له", target: 10 }, { title: "أستغفر الله وأتوب إليه", target: 100 },
-            { title: "اللهم صلِّ وسلم على نبينا محمد", target: 20 }
+            { title: "اللهم صلِّ وسلم على نبينا محمد", target: 20 }
         ];
 
         let appData = {};
