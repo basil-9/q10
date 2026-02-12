@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مخطط رمضان 2026</title>
+    <title>مخطط رمضان | Ramadan Planner</title>
     <meta name="theme-color" content="#1e293b">
     
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -13,7 +13,9 @@
         await OneSignal.init({
           appId: "d3f381d6-8c4d-4090-a8ed-984b5cbaae7c",
           safari_web_id: "web.onesignal.auto.399b8e00-4d8c-471a-9e28-27f67ae2986b",
-          notifyButton: { enable: true },
+          notifyButton: {
+            enable: true,
+          },
         });
       });
     </script>
@@ -26,158 +28,320 @@
     
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        button, select, input, .custom-checkbox { cursor: pointer; touch-action: manipulation; }
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .task-input { background: transparent; border: none; border-bottom: 1px solid #334155; color: #e2e8f0; width: 100%; padding: 4px 0; outline: none; transition: 0.3s; font-size: 14px; } 
+        .task-input { background: transparent; border: none; border-bottom: 1px solid #334155; color: #e2e8f0; width: 100%; padding: 8px 0; outline: none; transition: 0.3s; font-size: 16px; } 
         .task-input:focus { border-bottom-color: #fbbf24; }
+        .custom-checkbox input:checked + div { background-color: #10b981; border-color: #10b981; }
+        .grade-A { border-color: #4ade80 !important; }
+        .grade-B { border-color: #60a5fa !important; }
+        .grade-C { border-color: #facc15 !important; }
+        .grade-D { border-color: #fb923c !important; }
+        .grade-F { border-color: #f87171 !important; }
         .modal { opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; }
         .modal.active { opacity: 1; pointer-events: all; }
+        .modal-content { transform: scale(0.95); transition: 0.3s; max-height: 90vh; overflow-y: auto; }
+        .modal.active .modal-content { transform: scale(1); }
         @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); } 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); } }
         .day-complete { animation: pulse-gold 2s infinite; border-color: #fbbf24 !important; }
+        .azkar-card { transition: 0.3s; border-right: 4px solid transparent; }
+        .azkar-card:active { background: rgba(255,255,255,0.05); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col transition-colors duration-500 pb-10">
-
-    <div class="bg-black/40 py-1.5 px-4 flex justify-between items-center text-[11px] border-b border-white/5 font-mono">
-        <div id="live-clock" class="text-yellow-500">00:00:00</div>
-        <div id="hijri-date" class="text-gray-300">جاري التحميل...</div>
-    </div>
+<body class="min-h-screen flex flex-col transition-colors duration-500">
 
     <header class="bg-[#1e293b] border-b border-gray-700 sticky top-0 z-40 shadow-xl">
-        <div class="container mx-auto px-4 py-3">
+        <div class="container mx-auto px-4 py-2">
+            <div class="flex justify-between items-center text-[10px] md:text-xs text-gray-400 mb-2 border-b border-gray-800 pb-1">
+                <div id="live-clock"><i class="far fa-clock ml-1"></i> --:--:--</div>
+                <div id="live-date"><i class="far fa-calendar-alt ml-1"></i> ----/--/--</div>
+            </div>
+
             <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
                 <div class="flex items-center gap-3 w-full md:w-auto justify-center md:justify-start">
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-yellow-500 text-white shadow-lg shrink-0">
-                        <img src="https://cdn-icons-png.flaticon.com/512/2913/2913501.png" class="w-8 h-8 object-contain">
+                    <div id="logo-icon" class="w-10 h-10 rounded-lg flex items-center justify-center bg-yellow-500 text-white text-xl shadow-lg shrink-0">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2913/2913501.png" class="w-7 h-7 object-contain" alt="Moon Icon">
                     </div>
-                    <div>
-                        <h2 id="greeting-text" class="text-xs text-yellow-500 font-bold cursor-pointer" onclick="changeName()">صباح الخير يا زائر</h2>
-                        <h1 class="text-lg md:text-xl font-bold text-white whitespace-nowrap">مخطط رمضان 1447هـ</h1>
+                    <div class="text-center md:text-right">
+                        <h1 id="greeting-text" class="text-sm md:text-base font-bold text-white whitespace-nowrap">مخطط رمضان</h1>
+                        <div id="countdown" class="text-[10px] text-green-400 font-mono uppercase">...</div>
                     </div>
                 </div>
-                <div class="flex flex-wrap gap-2 justify-center">
-                    <button onclick="showHadith()" class="bg-gray-700 p-2.5 rounded-lg border border-gray-600"><i class="fas fa-lightbulb text-yellow-400"></i></button>
-                    <button onclick="openAzkar()" class="bg-gray-700 p-2.5 rounded-lg border border-gray-600"><i class="fas fa-pray text-blue-400"></i></button>
-                    <button onclick="exportData()" class="bg-gray-700 p-2.5 rounded-lg border border-gray-600"><i class="fas fa-download"></i></button>
+
+                <div class="flex flex-wrap gap-2 justify-center w-full md:w-auto">
+                    <button onclick="openAzkar()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm transition border border-emerald-600 flex items-center gap-2">
+                        <i class="fas fa-beads"></i> <span class="hidden sm:inline">الأذكار</span>
+                    </button>
+                    <button onclick="showHadith()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition border border-gray-600 flex items-center gap-2">
+                        <i class="fas fa-lightbulb text-yellow-400"></i> <span class="hidden sm:inline">حديث اليوم</span>
+                    </button>
+                    <button onclick="showChart()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition border border-gray-600 flex items-center gap-2">
+                        <i class="fas fa-chart-line text-blue-400"></i> <span class="hidden sm:inline">تحليل الأداء</span>
+                    </button>
+                    <button onclick="exportData()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition border border-gray-600" title="تصدير البيانات">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <label class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition border border-gray-600 cursor-pointer" title="استيراد البيانات">
+                        <i class="fas fa-upload"></i>
+                        <input type="file" onchange="importData(this)" class="hidden">
+                    </label>
                 </div>
             </div>
-            <div class="grid grid-cols-3 gap-2">
-                <div class="glass-panel p-2 rounded-lg text-center border-b-2 border-yellow-500"><span class="text-[10px] block text-gray-400">القرآن</span><span id="quran-stat" class="font-bold text-sm">0</span>/30</div>
-                <div class="glass-panel p-2 rounded-lg text-center border-b-2 border-green-500"><span class="text-[10px] block text-gray-400">الإنجاز</span><span id="task-stat" class="font-bold text-sm text-green-400">0%</span></div>
-                <div class="glass-panel p-2 rounded-lg text-center border-b-2 border-blue-500"><span class="text-[10px] block text-gray-400">المتبقي</span><span id="countdown" class="font-bold text-sm text-blue-400">..</span></div>
+
+            <div class="grid grid-cols-3 gap-2 md:gap-4">
+                <div class="glass-panel p-2 rounded-lg relative overflow-hidden text-center md:text-right">
+                    <div class="flex flex-col md:flex-row justify-between items-center relative z-10 text-[10px] md:text-xs text-gray-300"><span>القرآن</span> <i class="fas fa-book-open"></i></div>
+                    <div class="text-sm md:text-lg font-bold text-white relative z-10 mt-1"><span id="quran-stat">0</span>/30</div>
+                    <div id="quran-bar" class="absolute bottom-0 left-0 h-1 bg-yellow-500 transition-all duration-1000" style="width:0%"></div>
+                </div>
+                <div class="glass-panel p-2 rounded-lg relative overflow-hidden text-center md:text-right">
+                    <div class="flex flex-col md:flex-row justify-between items-center relative z-10 text-[10px] md:text-xs text-gray-300"><span>الصلاة</span> <i class="fas fa-mosque"></i></div>
+                    <div class="text-sm md:text-lg font-bold text-white relative z-10 mt-1"><span id="prayer-stat">0</span>%</div>
+                    <div id="prayer-bar" class="absolute bottom-0 left-0 h-1 bg-green-500 transition-all duration-1000" style="width:0%"></div>
+                </div>
+                <div class="glass-panel p-2 rounded-lg relative overflow-hidden text-center md:text-right">
+                    <div class="flex flex-col md:flex-row justify-between items-center relative z-10 text-[10px] md:text-xs text-gray-300"><span>المهام</span> <i class="fas fa-tasks"></i></div>
+                    <div class="text-sm md:text-lg font-bold text-white relative z-10 mt-1"><span id="task-stat">0</span>%</div>
+                    <div id="task-bar" class="absolute bottom-0 left-0 h-1 bg-blue-500 transition-all duration-1000" style="width:0%"></div>
+                </div>
             </div>
         </div>
     </header>
 
     <main class="flex-grow container mx-auto px-4 py-6">
-        <div id="days-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        <div id="days-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
     </main>
 
     <div id="azkar-modal" class="modal fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
-        <div class="modal-content bg-[#1e293b] w-full max-w-md rounded-2xl p-6 text-center border border-gray-600">
-            <h3 class="text-xl font-bold mb-6">📿 الأذكار والسبحة</h3>
-            <div class="bg-black/30 p-6 rounded-2xl mb-6 min-h-[120px] flex items-center justify-center italic text-lg" id="current-zekr">سبحان الله</div>
-            <div class="flex justify-center gap-6 mb-8">
-                <button onclick="prevZekr()" class="bg-gray-700 p-4 rounded-full"><i class="fas fa-chevron-right"></i></button>
-                <button onclick="nextZekr()" class="bg-gray-700 p-4 rounded-full"><i class="fas fa-chevron-left"></i></button>
+        <div class="modal-content bg-[#1e293b] w-full max-w-2xl rounded-xl shadow-2xl border border-gray-600 p-5 relative">
+            <button onclick="closeModal('azkar-modal')" class="absolute top-4 left-4 text-gray-400 hover:text-white p-2"><i class="fas fa-times text-xl"></i></button>
+            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3"><i class="fas fa-beads text-emerald-500"></i> الأذكار والمسبحة</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-[#0f172a] p-4 rounded-xl border border-emerald-900/50">
+                    <p class="text-emerald-400 text-xs mb-2">عداد التسبيح</p>
+                    <div class="flex flex-col items-center gap-3">
+                        <div id="tasbeeh-count" class="text-5xl font-mono text-white">0</div>
+                        <div class="flex gap-2 w-full">
+                            <button onclick="updateTasbeeh(1)" class="flex-grow bg-emerald-600 p-4 rounded-lg active:scale-95 transition text-2xl"><i class="fas fa-plus"></i></button>
+                            <button onclick="updateTasbeeh(0)" class="bg-gray-700 p-4 rounded-lg"><i class="fas fa-redo-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-2 overflow-y-auto max-h-60 pr-2">
+                    <div class="azkar-card bg-gray-800/50 p-3 rounded border-r-4 border-emerald-500 text-sm">سبحان الله وبحمده (100 مرة)</div>
+                    <div class="azkar-card bg-gray-800/50 p-3 rounded border-r-4 border-blue-500 text-sm">أستغفر الله وأتوب إليه (100 مرة)</div>
+                    <div class="azkar-card bg-gray-800/50 p-3 rounded border-r-4 border-yellow-500 text-sm">لا إله إلا الله وحده لا شريك له</div>
+                    <div class="azkar-card bg-gray-800/50 p-3 rounded border-r-4 border-purple-500 text-sm">اللهم صلِّ وسلم على نبينا محمد</div>
+                </div>
             </div>
-            <div class="text-7xl font-bold text-yellow-500 mb-6 font-mono" id="tasbeeh-count">0</div>
-            <button onclick="incrementTasbeeh()" class="w-36 h-36 rounded-full bg-yellow-500/10 border-4 border-yellow-500 text-yellow-500 text-2xl font-bold active:scale-90 transition mx-auto block">سبّح</button>
-            <div class="flex justify-between mt-8">
-                <button onclick="resetTasbeeh()" class="text-sm text-gray-500"><i class="fas fa-undo"></i> تصفير</button>
-                <button onclick="closeModal('azkar-modal')" class="text-sm text-gray-400 font-bold">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="share-modal" class="modal fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+        <div class="modal-content bg-[#1e293b] w-full max-w-md rounded-xl shadow-2xl border border-gray-600 p-6 text-center relative">
+            <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-share-alt text-blue-500 text-2xl"></i></div>
+            <h3 class="text-white font-bold mb-4">مشاركة الإنجاز</h3>
+            <textarea id="share-text" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-sm text-gray-300 h-32 mb-4 readonly"></textarea>
+            <div class="flex gap-2">
+                <button onclick="copyShareText()" class="flex-grow bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-lg font-bold">نسخ النص</button>
+                <button onclick="closeModal('share-modal')" class="bg-gray-700 text-white px-6 py-3 rounded-lg">إلغاء</button>
             </div>
+        </div>
+    </div>
+
+    <div id="note-modal" class="modal fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+        <div class="modal-content bg-[#1e293b] w-full max-w-lg rounded-xl shadow-2xl border border-gray-600 p-5 relative">
+            <button onclick="closeModal('note-modal')" class="absolute top-4 left-4 text-gray-400 hover:text-white p-2"><i class="fas fa-times text-xl"></i></button>
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center"><i class="fas fa-pen-nib text-yellow-500 ml-2"></i> تدوين الخواطر <span id="note-day-num" class="mr-1"></span></h3>
+            <textarea id="note-text" class="w-full h-40 bg-[#0f172a] border border-gray-600 rounded-lg p-3 text-gray-200 focus:border-yellow-500 outline-none resize-none text-base" placeholder="اكتب خواطرك اليومية هنا..."></textarea>
+            <div class="mt-4 flex justify-end"><button onclick="saveNote()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-bold w-full md:w-auto">حفظ</button></div>
+        </div>
+    </div>
+
+    <div id="chart-modal" class="modal fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm px-2">
+        <div class="modal-content bg-[#1e293b] w-full max-w-4xl rounded-xl shadow-2xl border border-gray-600 p-4 relative">
+            <button onclick="closeModal('chart-modal')" class="absolute top-2 left-2 text-gray-400 hover:text-white p-2"><i class="fas fa-times text-xl"></i></button>
+            <h3 class="text-lg font-bold text-white mb-4 text-center">📊 تحليل الإنجازات</h3>
+            <div class="w-full h-64 md:h-80"><canvas id="performanceChart"></canvas></div>
         </div>
     </div>
 
     <div id="hadith-modal" class="modal fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
-        <div class="modal-content bg-[#1e293b] w-full max-w-md rounded-2xl p-8 text-center border border-yellow-500/30">
-            <p id="hadith-content" class="text-lg text-white leading-relaxed mb-8 italic">...</p>
-            <button onclick="closeModal('hadith-modal')" class="w-full bg-yellow-500 text-black font-bold py-3 rounded-xl">تقبّل الله</button>
+        <div class="modal-content bg-[#1e293b] w-full max-w-md rounded-xl shadow-2xl border border-gray-600 p-6 text-center relative">
+            <div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fas fa-quote-right text-yellow-500 text-2xl"></i></div>
+            <p id="hadith-content" class="text-lg text-white leading-relaxed mb-6 italic">...</p>
+            <button onclick="closeModal('hadith-modal')" class="bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-full w-full md:w-auto">إغلاق</button>
         </div>
     </div>
 
+    <footer class="text-center py-8 text-gray-600 text-xs border-t border-gray-800 bg-[#0f172a]"><p>اللهم اجعل هذا العمل خالصاً لوجهك الكريم</p></footer>
+
     <script>
-        const RAMADAN_START = new Date('2026-02-18T00:00:00');
-        const QUOTES = ["من صام رمضان إيماناً واحتساباً غفر له ما تقدم من ذنبه", "تسحروا فإن في السحور بركة", "خلوف فم الصائم أطيب عند الله من ريح المسك", "عمرة في رمضان تعدل حجة", "للصائم فرحتان: فرحة عند فطره"];
-        const AZKAR = ["سبحان الله", "الحمد لله", "لا إله إلا الله", "الله أكبر", "أستغفر الله", "اللهم صلِ على محمد"];
-        let appData = {}; let zekrIndex = 0; let tasbeehCounter = 0;
+        const RAMADAN_START = new Date('2026-02-18T00:00:00'); 
+        const TOTAL_DAYS = 30;
+        const MAIN_COLOR = '#fbbf24';
+        const QUOTES = [
+            "الصيام والقرآن يشفعان للعبد يوم القيامة.",
+            "من صام رمضان إيماناً واحتساباً غفر له ما تقدم من ذنبه.",
+            "تسحّروا فإن في السحور بركة.",
+            "عمرة في رمضان تعدل حجة.",
+            "أحب الأعمال إلى الله أدومها وإن قل.",
+            "لخلوف فم الصائم أطيب عند الله من ريح المسك.",
+            "إن للصائم عند فطره لدعوة ما ترد.",
+            "من قام رمضان إيماناً واحتساباً غفر له ما تقدم من ذنبه.",
+            "رمضان إلى رمضان مكفرات لما بينهن إذا اجتنبت الكبائر.",
+            "تسوكوا فإن السواك مطهرة للفم مرضاة للرب.",
+            "الصدقة في رمضان أفضل الصدقة.",
+            "من فطر صائماً كان له مثل أجره."
+        ];
+
+        let appData = {};
+        let currentNoteDay = null;
+        let chartInstance = null;
+        let tasbeehCount = 0;
 
         function init() {
-            updateGreeting(); setInterval(updateClock, 1000);
-            const stored = localStorage.getItem('ramadan_Planner_V2026_Final');
-            if (stored) appData = JSON.parse(stored);
-            else { 
-                for (let i = 1; i <= 30; i++) { 
-                    appData[i] = { 
+            const stored = localStorage.getItem('ramadan_Planner_V15_Final'); 
+            if (stored) { appData = JSON.parse(stored); } 
+            else {
+                for (let i = 1; i <= TOTAL_DAYS; i++) {
+                    appData[i] = {
+                        prayerGrade: "", note: "",
                         tasks: [
-                            {text: `📖 ختمة الجزء ${i}`, fixed: true, done: false}, 
-                            {text: "", placeholder: "💧 شرب الماء", done: false}, 
-                            {text: "", placeholder: "✨ مهمة إضافية", done: false},
-                            {text: "", placeholder: "✨ مهمة إضافية", done: false},
-                            {text: "", placeholder: "✨ مهمة إضافية", done: false}
-                        ] 
-                    }; 
-                } 
+                            { id: 0, text: `📖 قراءة الجزء ${i}`, type: "fixed", done: false },
+                            { id: 1, text: "", placeholder: "💧 شرب الماء", type: "editable", done: false },
+                            { id: 2, text: "", placeholder: "💻 جلسة كود...", type: "editable", done: false },
+                            { id: 3, text: "", placeholder: "✨ مهمة إضافية...", type: "editable", done: false },
+                            { id: 4, text: "", placeholder: "✨ مهمة إضافية...", type: "editable", done: false }
+                        ]
+                    };
+                }
             }
-            render(); updateStats();
+            render(); updateStats(); startCountdown(); updateGreeting(); startTime();
+        }
+
+        // --- المزايا الجديدة ---
+        function startTime() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('live-clock').innerHTML = `<i class="far fa-clock ml-1"></i> ${now.toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit', second:'2-digit'})}`;
+                document.getElementById('live-date').innerHTML = `<i class="far fa-calendar-alt ml-1"></i> ${now.toLocaleDateString('ar-SA', {year: 'numeric', month:'long', day:'numeric'})}`;
+            }, 1000);
         }
 
         function updateGreeting() {
-            const hour = new Date().getHours(); const name = localStorage.getItem('user_name') || 'زائر';
-            let greet = (hour < 12) ? "صباح الخير يا" : "مساء الخير يا";
-            document.getElementById('greeting-text').innerText = `${greet} ${name}`;
+            let name = localStorage.getItem('user_name');
+            if (!name) {
+                name = prompt("أهلاً بك! ما هو اسمك؟") || "يا بطل";
+                localStorage.setItem('user_name', name);
+            }
+            const hour = new Date().getHours();
+            const welcome = (hour < 12) ? "صباح الخير" : "مساء الخير";
+            document.getElementById('greeting-text').innerText = `${welcome} يا ${name} 🌙`;
         }
 
-        function changeName() {
-            const newName = prompt("اكتب اسمك:");
-            if(newName) { localStorage.setItem('user_name', newName); updateGreeting(); }
+        function openAzkar() { document.getElementById('azkar-modal').classList.add('active'); }
+        function updateTasbeeh(val) {
+            if(val === 0) tasbeehCount = 0;
+            else tasbeehCount++;
+            document.getElementById('tasbeeh-count').innerText = tasbeehCount;
+            if(tasbeehCount % 33 === 0 && tasbeehCount > 0) navigator.vibrate?.(100);
         }
 
-        function updateClock() {
-            const now = new Date(); document.getElementById('live-clock').innerText = now.toLocaleTimeString('ar-SA');
-            document.getElementById('hijri-date').innerText = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {day:'numeric', month:'long'}).format(now);
-            const diff = RAMADAN_START - now; document.getElementById('countdown').innerText = diff > 0 ? `${Math.floor(diff/864e5)} يوم` : "رمضان مبارك";
+        function prepareShare(dayNum) {
+            const day = appData[dayNum];
+            const doneTasks = day.tasks.filter(t => t.done).length;
+            const text = `🌙 إنجازي في اليوم ${dayNum} من رمضان:\n✅ أنهيت ${doneTasks} مهام من أصل ${day.tasks.length}\n⭐ تقييم الصلاة: ${day.prayerGrade || '-'}\n📖 قراءة القرآن: ${day.tasks[0].done ? 'أنجزت' : 'قيد العمل'}\n\n#مخطط_رمضان 🕌`;
+            document.getElementById('share-text').value = text;
+            document.getElementById('share-modal').classList.add('active');
         }
 
+        function copyShareText() {
+            const copyText = document.getElementById("share-text");
+            copyText.select();
+            document.execCommand("copy");
+            alert("تم نسخ النص! شاركه الآن في سناب شات أو واتساب");
+            closeModal('share-modal');
+        }
+
+        // --- الأكواد الأصلية ---
         function render() {
-            const grid = document.getElementById('days-grid'); grid.innerHTML = '';
-            for (let i = 1; i <= 30; i++) {
-                const day = appData[i]; const isDone = day.tasks.every(t => t.done);
+            const grid = document.getElementById('days-grid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= TOTAL_DAYS; i++) {
+                const day = appData[i];
+                let date = new Date(RAMADAN_START);
+                date.setDate(date.getDate() + (i - 1));
+                let dateStr = date.toLocaleDateString('ar-SA', { weekday: 'long', day: 'numeric', month: 'short' });
+
+                let borderClass = 'border-gray-700';
+                if(day.prayerGrade) borderClass = `grade-${day.prayerGrade} border-2`;
+                if(day.tasks.every(t => t.done)) borderClass += ' day-complete';
+
+                let tasksHtml = '';
+                day.tasks.forEach((task, idx) => {
+                    let inputHtml = idx === 0 
+                        ? `<span class="text-sm font-bold ${task.done ? 'line-through opacity-50 text-gray-400' : 'text-yellow-500'}">${task.text}</span>`
+                        : `<input type="text" class="task-input ${task.done ? 'line-through text-gray-500' : ''}" value="${task.text}" placeholder="${task.placeholder}" oninput="updateTaskText(${i}, ${idx}, this.value)">`;
+                    tasksHtml += `<div class="flex items-center gap-3 mb-3"><label class="custom-checkbox cursor-pointer shrink-0"><input type="checkbox" class="hidden" onchange="toggleTask(${i}, ${idx})" ${task.done ? 'checked' : ''}><div class="w-6 h-6 border border-gray-500 rounded flex items-center justify-center transition bg-gray-800"><i class="fas fa-check text-white text-xs ${task.done ? '' : 'hidden'}"></i></div></label><div class="flex-grow">${inputHtml}</div></div>`;
+                });
+
                 const card = document.createElement('div');
-                card.className = `glass-panel p-4 rounded-2xl border transition-all ${isDone ? 'day-complete border-yellow-500/50' : 'border-white/5'}`;
-                card.innerHTML = `<div class="mb-4"><span class="font-bold text-yellow-500">اليوم ${i}</span></div>
-                    <div class="space-y-3">${day.tasks.map((t, idx) => `
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${i},${idx})" class="w-5 h-5 rounded bg-gray-800 checked:bg-green-500 transition">
-                            <input type="text" value="${t.text}" ${t.fixed ? 'readonly' : ''} placeholder="${t.placeholder || ''}" onchange="updateTaskText(${i},${idx},this.value)" class="task-input flex-grow ${t.done ? 'line-through text-gray-500' : ''} ${t.fixed ? 'font-bold text-yellow-500' : ''}">
-                        </div>`).join('')}</div>`;
+                card.className = `bg-[#1e293b] rounded-xl border shadow-lg p-5 flex flex-col gap-3 relative transition-all ${borderClass}`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div><span class="text-white font-bold text-xl">اليوم ${i}</span><div class="text-xs text-gray-400 mt-1">${dateStr}</div></div>
+                        <div class="flex gap-1 items-center">
+                            <button onclick="prepareShare(${i})" class="text-blue-400 hover:text-white transition w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center" title="مشاركة"><i class="fas fa-share-nodes text-xs"></i></button>
+                            <button onclick="openNote(${i})" class="${day.note ? 'text-yellow-500' : 'text-gray-500'} hover:text-white transition w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center"><i class="fas fa-pen text-xs"></i></button>
+                            <select onchange="updateGrade(${i}, this.value)" class="bg-gray-800 border border-gray-600 text-xs rounded px-1 py-2 outline-none cursor-pointer text-center w-12 font-bold">
+                                <option value="" ${day.prayerGrade === '' ? 'selected' : ''}>-</option>
+                                <option value="A" class="text-green-400" ${day.prayerGrade === 'A' ? 'selected' : ''}>A</option>
+                                <option value="B" class="text-blue-400" ${day.prayerGrade === 'B' ? 'selected' : ''}>B</option>
+                                <option value="C" class="text-yellow-400" ${day.prayerGrade === 'C' ? 'selected' : ''}>C</option>
+                                <option value="D" class="text-orange-400" ${day.prayerGrade === 'D' ? 'selected' : ''}>D</option>
+                                <option value="F" class="text-red-400" ${day.prayerGrade === 'F' ? 'selected' : ''}>F</option>
+                            </select>
+                        </div>
+                    </div><hr class="border-gray-700/50"><div>${tasksHtml}</div>`;
                 grid.appendChild(card);
             }
         }
 
-        function toggleTask(d, t) { 
+        function toggleTask(d, t) {
             appData[d].tasks[t].done = !appData[d].tasks[t].done;
-            // احتفال إذا اكتملت كل مهام اليوم
-            if (appData[d].tasks.every(task => task.done)) { celebrate(); }
-            save(); render(); updateStats(); 
+            if(appData[d].tasks.every(task => task.done) && appData[d].tasks[t].done) celebrate();
+            save(); render(); updateStats();
         }
-
+        function updateTaskText(d, t, txt) { appData[d].tasks[t].text = txt; save(); }
+        function updateGrade(d, g) { appData[d].prayerGrade = g; save(); render(); updateStats(); }
         function celebrate() { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); }
-        function openAzkar() { document.getElementById('azkar-modal').classList.add('active'); }
-        function incrementTasbeeh() { tasbeehCounter++; document.getElementById('tasbeeh-count').innerText = tasbeehCounter; if(tasbeehCounter % 33 === 0) confetti({particleCount: 100}); }
-        function resetTasbeeh() { tasbeehCounter = 0; document.getElementById('tasbeeh-count').innerText = 0; }
-        function nextZekr() { zekrIndex = (zekrIndex + 1) % AZKAR.length; document.getElementById('current-zekr').innerText = AZKAR[zekrIndex]; resetTasbeeh(); }
-        function prevZekr() { zekrIndex = (zekrIndex - 1 + AZKAR.length) % AZKAR.length; document.getElementById('current-zekr').innerText = AZKAR[zekrIndex]; resetTasbeeh(); }
-        function updateTaskText(d, t, val) { appData[d].tasks[t].text = val; save(); }
-        function save() { localStorage.setItem('ramadan_Planner_V2026_Final', JSON.stringify(appData)); }
+        function save() { localStorage.setItem('ramadan_Planner_V15_Final', JSON.stringify(appData)); }
         function updateStats() {
-            let done = 0, total = 0, quran = 0;
-            for(let i in appData) { if(appData[i].tasks[0].done) quran++; appData[i].tasks.forEach(t => { total++; if(t.done) done++; }); }
-            document.getElementById('quran-stat').innerText = quran; document.getElementById('task-stat').innerText = total > 0 ? Math.round((done/total)*100) + "%" : "0%";
+            let q=0, tt=0, td=0, pp=0, pd=0;
+            const pts={'A':100,'B':85,'C':70,'D':50,'F':20};
+            for(let i=1; i<=TOTAL_DAYS; i++) {
+                if(appData[i].tasks[0].done) q++;
+                appData[i].tasks.slice(1).forEach(t=>{tt++;if(t.done)td++});
+                if(appData[i].prayerGrade){pp+=pts[appData[i].prayerGrade];pd++}
+            }
+            document.getElementById('quran-stat').innerText=q;
+            document.getElementById('quran-bar').style.width=`${(q/30)*100}%`;
+            document.getElementById('prayer-stat').innerText=pd?Math.round(pp/pd):0;
+            document.getElementById('prayer-bar').style.width=`${pd?Math.round(pp/pd):0}%`;
+            document.getElementById('task-stat').innerText=tt?Math.round((td/tt)*100):0;
+            document.getElementById('task-bar').style.width=`${tt?Math.round((td/tt)*100):0}%`;
         }
-        function showHadith() { document.getElementById('hadith-content').innerText = QUOTES[Math.floor(Math.random()*QUOTES.length)]; document.getElementById('hadith-modal').classList.add('active'); }
-        function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData)); const a = document.createElement('a'); a.href = dataStr; a.download = "ramadan.json"; a.click(); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openNote(d){ currentNoteDay=d; document.getElementById('note-day-num').innerText=d; document.getElementById('note-text').value=appData[d].note; document.getElementById('note-modal').classList.add('active'); }
+        function saveNote(){ appData[currentNoteDay].note=document.getElementById('note-text').value; save(); closeModal('note-modal'); render(); }
+        function showHadith(){ document.getElementById('hadith-content').innerText=`"${QUOTES[Math.floor(Math.random()*QUOTES.length)]}"`; document.getElementById('hadith-modal').classList.add('active'); }
+        function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+        function startCountdown(){ setInterval(()=>{ const d=RAMADAN_START-new Date(); document.getElementById('countdown').innerText=d<0?"رمضان مبارك!":`باقي ${Math.floor(d/864e5)} يوم`; },1000); }
+        function showChart(){ document.getElementById('chart-modal').classList.add('active'); const ctx=document.getElementById('performanceChart').getContext('2d'); if(chartInstance)chartInstance.destroy(); chartInstance=new Chart(ctx,{type:'line',data:{labels:Array.from({length:30},(_,i)=>i+1),datasets:[{label:'الصلاة',data:Array.from({length:30},(_,i)=>({'A':100,'B':85,'C':70,'D':50,'F':20}[appData[i+1].prayerGrade]||0)),borderColor:MAIN_COLOR},{label:'المهام',data:Array.from({length:30},(_,i)=>{const t=appData[i+1].tasks; return (t.filter(x=>x.done).length/t.length)*100}),borderColor:'#94a3b8'}]},options:{responsive:true,maintainAspectRatio:false}}); }
+        function exportData() { const s="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(appData)); const a=document.createElement('a');a.href=s;a.download="ramadan_data.json";a.click(); }
+        function importData(input) { const f=input.files[0]; if(!f)return; const r=new FileReader(); r.onload=(e)=>{try{appData=JSON.parse(e.target.result);save();location.reload()}catch{alert('خطأ في الملف')}}; r.readAsText(f); }
+
         init();
     </script>
 </body>
